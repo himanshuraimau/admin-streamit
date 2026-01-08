@@ -46,7 +46,15 @@ export const togglePostVisibility = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const data = toggleVisibilitySchema.parse(req.body);
-    const adminId = req.user!.id;
+    
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    
+    const adminId: string = req.user.id;
 
     const post = await contentService.togglePostVisibility(id, adminId, data);
 
