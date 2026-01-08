@@ -197,13 +197,17 @@ class ReportService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "REPORT_REVIEWED",
+          action: "REPORT_REVIEWED" as any,
           adminId: adminId,
+          targetType: "REPORT",
+          targetId: id,
+          description: `Marked report as under review`,
           affectedUserId: report.reportedUserId,
-          details: {
+          metadata: {
             reportId: id,
             reason: report.reason,
           },
+          ipAddress: null,
         },
       });
 
@@ -238,15 +242,19 @@ class ReportService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "REPORT_REVIEWED",
+          action: "REPORT_REVIEWED" as any,
           adminId: adminId,
+          targetType: "REPORT",
+          targetId: id,
+          description: `Resolved report: ${data.resolution}`,
           affectedUserId: report.reportedUserId,
-          details: {
+          metadata: {
             reportId: id,
             reason: report.reason,
             resolution: data.resolution,
             action: data.action,
           },
+          ipAddress: null,
         },
       });
 
@@ -277,12 +285,16 @@ class ReportService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "REPORT_DISMISSED",
+          action: "REPORT_DISMISSED" as any,
           adminId: adminId,
-          details: {
+          targetType: "REPORT",
+          targetId: id,
+          description: `Dismissed report: ${reason}`,
+          metadata: {
             reportId: id,
             reason,
           },
+          ipAddress: null,
         },
       });
 

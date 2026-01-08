@@ -6,7 +6,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import adminApi from "@/lib/api";
+import { adminApi } from "@/lib/api";
 import type {
   DiscountCode,
   DiscountType,
@@ -86,13 +86,13 @@ export default function DiscountCodesPage() {
         );
       },
     }),
-    columnHelper.accessor("usedCount", {
+    columnHelper.accessor("currentRedemptions", {
       header: "Used",
       cell: (info) => {
         const row = info.row.original;
         return (
           <span>
-            {info.getValue()} {row.maxUses ? `/ ${row.maxUses}` : ""}
+            {info.getValue()} {row.maxRedemptions ? `/ ${row.maxRedemptions}` : ""}
           </span>
         );
       },
@@ -166,8 +166,8 @@ export default function DiscountCodesPage() {
       code: editModal.code,
       type: editModal.type,
       value: editModal.value,
-      maxUses: editModal.maxUses,
-      expiresAt: editModal.expiresAt ? new Date(editModal.expiresAt).toISOString() : null,
+      maxRedemptions: editModal.maxUses ?? undefined,
+      expiresAt: editModal.expiresAt ? new Date(editModal.expiresAt).toISOString() : undefined,
     };
 
     if (editModal.discount) {

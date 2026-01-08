@@ -22,8 +22,8 @@ export function LoginPage() {
       } else {
         setError("Invalid credentials");
       }
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsLoading(false);
     }

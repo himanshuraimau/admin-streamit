@@ -15,7 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import adminApi from "@/lib/api";
+import { adminApi } from "@/lib/api";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
@@ -206,8 +206,8 @@ export default function AnalyticsPage() {
                     outerRadius={80}
                     label
                   >
-                    {users.usersByRole.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {users.usersByRole.map((_entry: { role: string; count: number }, index: number) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -267,7 +267,7 @@ export default function AnalyticsPage() {
                     outerRadius={80}
                     label
                   >
-                    {content.postsByType.map((entry, index) => (
+                    {content.postsByType.map((_entry: { type: string; count: number }, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -303,7 +303,7 @@ export default function AnalyticsPage() {
           <div>
             <h3 className="font-semibold mb-2">Top Gifts</h3>
             <div className="space-y-2">
-              {gifts.topGifts.map((gift) => (
+              {gifts.topGifts.map((gift: { giftId: string; giftName: string; count: number; totalRevenue: number }) => (
                 <div
                   key={gift.giftId}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"

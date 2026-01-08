@@ -45,32 +45,32 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Toaster position="top-right" richColors closeButton />
         <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          
-          <Route
-            element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/users" element={<UsersPage />} />
-            <Route path="/users/:id" element={<UserDetailPage />} />
-            <Route path="/creators" element={<CreatorApplicationsPage />} />
-            <Route path="/payments" element={<PaymentsPage />} />
-            <Route path="/gifts" element={<GiftsPage />} />
-            <Route path="/discounts" element={<DiscountCodesPage />} />
-            <Route path="/content" element={<ContentModerationPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/logs" element={<ActivityLogsPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            
+            <Route
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/users/:id" element={<UserDetailPage />} />
+              <Route path="/creators" element={<CreatorApplicationsPage />} />
+              <Route path="/payments" element={<PaymentsPage />} />
+              <Route path="/gifts" element={<GiftsPage />} />
+              <Route path="/discounts" element={<DiscountCodesPage />} />
+              <Route path="/content" element={<ContentModerationPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/logs" element={<ActivityLogsPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
     </ErrorBoundary>
-    </QueryClientProvider>
   );
 }
 

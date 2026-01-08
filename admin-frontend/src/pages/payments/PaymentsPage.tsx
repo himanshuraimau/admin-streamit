@@ -6,7 +6,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import adminApi from "@/lib/api";
+import { adminApi } from "@/lib/api";
 import type { Payment, PurchaseStatus, RefundPaymentInput } from "@/types";
 
 const columnHelper = createColumnHelper<Payment>();
@@ -15,9 +15,10 @@ export default function PaymentsPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<PurchaseStatus | "">("");
   const [search, setSearch] = useState("");
-  const [refundModal, setRefundModal] = useState<{ payment: Payment; reason: string } | null>(
-    null
-  );
+  const [refundModal, setRefundModal] = useState<{
+    payment: Payment;
+    reason: string;
+  } | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -50,16 +51,20 @@ export default function PaymentsPage() {
   const columns = [
     columnHelper.accessor("id", {
       header: "ID",
-      cell: (info) => <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>,
+      cell: (info) => (
+        <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>
+      ),
     }),
-    columnHelper.accessor((row) => row.buyer.name, {
+    columnHelper.accessor((row) => (row.buyer as { name: string }).name, {
       id: "buyer",
       header: "Buyer",
       cell: (info) => <span>{info.getValue()}</span>,
     }),
     columnHelper.accessor("amount", {
       header: "Amount",
-      cell: (info) => <span className="font-semibold">${info.getValue().toFixed(2)}</span>,
+      cell: (info) => (
+        <span className="font-semibold">${info.getValue().toFixed(2)}</span>
+      ),
     }),
     columnHelper.accessor("status", {
       header: "Status",
@@ -72,13 +77,15 @@ export default function PaymentsPage() {
           REFUNDED: "bg-gray-100 text-gray-800",
         };
         return (
-          <span className={`px-2 py-1 rounded text-xs font-medium ${colors[status]}`}>
+          <span
+            className={`px-2 py-1 rounded text-xs font-medium ${colors[status]}`}
+          >
             {status}
           </span>
         );
       },
     }),
-    columnHelper.accessor("method", {
+    columnHelper.accessor("paymentMethod", {
       header: "Method",
       cell: (info) => <span className="text-sm">{info.getValue()}</span>,
     }),
@@ -122,7 +129,9 @@ export default function PaymentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Total Revenue</p>
-            <p className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</p>
+            <p className="text-2xl font-bold">
+              ${stats.totalRevenue.toFixed(2)}
+            </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Total Payments</p>
@@ -170,8 +179,14 @@ export default function PaymentsPage() {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  <th
+                    key={header.id}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </th>
                 ))}
               </tr>
@@ -224,14 +239,16 @@ export default function PaymentsPage() {
             <h2 className="text-xl font-bold mb-4">Refund Payment</h2>
             <p className="text-sm text-gray-600 mb-4">
               Refund ${refundModal.payment.amount.toFixed(2)} to{" "}
-              {refundModal.payment.buyer.name}?
+              {(refundModal.payment.buyer as { name: string }).name}?
             </p>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Reason</label>
               <textarea
                 value={refundModal.reason}
                 onChange={(e) =>
-                  setRefundModal((prev) => (prev ? { ...prev, reason: e.target.value } : null))
+                  setRefundModal((prev) =>
+                    prev ? { ...prev, reason: e.target.value } : null
+                  )
                 }
                 className="w-full px-3 py-2 border rounded-lg"
                 rows={3}
@@ -252,7 +269,9 @@ export default function PaymentsPage() {
                     data: { reason: refundModal.reason },
                   })
                 }
-                disabled={!refundModal.reason.trim() || refundMutation.isPending}
+                disabled={
+                  !refundModal.reason.trim() || refundMutation.isPending
+                }
                 className="px-4 py-2 bg-red-600 text-white rounded-lg disabled:opacity-50"
               >
                 {refundMutation.isPending ? "Processing..." : "Refund"}

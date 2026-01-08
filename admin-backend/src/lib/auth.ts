@@ -12,10 +12,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.ADMIN_FRONTEND_URL || "http://localhost:3001",
     process.env.BETTER_AUTH_URL || "http://localhost:4000",
-  ],
-  advanced: {
-    generateId: false, // Use Prisma's default ID generation
-  },
+  ]
 });
 
 export type Session = typeof auth.$Infer.Session;

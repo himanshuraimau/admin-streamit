@@ -6,7 +6,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import adminApi from "@/lib/api";
+import { adminApi } from "@/lib/api";
 import type { Gift, GiftTransaction, CreateGiftInput, UpdateGiftInput } from "@/types";
 
 const giftColumnHelper = createColumnHelper<Gift>();
@@ -14,7 +14,7 @@ const transactionColumnHelper = createColumnHelper<GiftTransaction>();
 
 export default function GiftsPage() {
   const [activeTab, setActiveTab] = useState<"gifts" | "transactions">("gifts");
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [editModal, setEditModal] = useState<{
     gift?: Gift;
     name: string;
@@ -71,13 +71,9 @@ export default function GiftsPage() {
       header: "Name",
       cell: (info) => <span className="font-medium">{info.getValue()}</span>,
     }),
-    giftColumnHelper.accessor("price", {
+    giftColumnHelper.accessor("coinPrice", {
       header: "Price",
       cell: (info) => <span className="font-semibold">${info.getValue().toFixed(2)}</span>,
-    }),
-    giftColumnHelper.accessor("description", {
-      header: "Description",
-      cell: (info) => <span className="text-sm text-gray-600">{info.getValue()}</span>,
     }),
     giftColumnHelper.accessor("createdAt", {
       header: "Created",
@@ -95,9 +91,9 @@ export default function GiftsPage() {
                 setEditModal({
                   gift,
                   name: gift.name,
-                  price: gift.price,
+                  price: gift?.coinPrice,
                   imageUrl: gift.imageUrl,
-                  description: gift.description,
+                  description: gift.createdAt,
                 })
               }
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
@@ -125,22 +121,22 @@ export default function GiftsPage() {
       header: "ID",
       cell: (info) => <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>,
     }),
-    transactionColumnHelper.accessor((row) => row.gift.name, {
+    transactionColumnHelper.accessor((row) => row.gift?.name ?? "N/A", {
       id: "gift",
       header: "Gift",
       cell: (info) => <span>{info.getValue()}</span>,
     }),
-    transactionColumnHelper.accessor((row) => row.sender.name, {
+    transactionColumnHelper.accessor((row) => row.sender?.name, {
       id: "sender",
       header: "Sender",
       cell: (info) => <span>{info.getValue()}</span>,
     }),
-    transactionColumnHelper.accessor((row) => row.receiver.name, {
+    transactionColumnHelper.accessor((row) => row.receiver?.name, {
       id: "receiver",
       header: "Receiver",
       cell: (info) => <span>{info.getValue()}</span>,
     }),
-    transactionColumnHelper.accessor("amount", {
+    transactionColumnHelper.accessor("coinAmount", {
       header: "Amount",
       cell: (info) => <span className="font-semibold">${info.getValue().toFixed(2)}</span>,
     }),
@@ -167,7 +163,7 @@ export default function GiftsPage() {
 
     const data = {
       name: editModal.name,
-      price: editModal.price,
+      coinPrice: editModal.price,
       imageUrl: editModal.imageUrl,
       description: editModal.description,
     };

@@ -411,12 +411,12 @@ export class AdminService {
       await prisma.adminActivityLog.create({
         data: {
           adminId: data.adminId,
-          action: data.action,
+          action: data.action as any,
           targetType: data.targetType,
           targetId: data.targetId,
-          details: data.details || {},
-          ipAddress: null, // Will be set by controller
-          userAgent: null, // Will be set by controller
+          description: `${data.action} - ${data.targetType}`,
+          metadata: data.details || {},
+          ipAddress: null,
         },
       });
     } catch (error) {

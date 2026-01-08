@@ -5,13 +5,12 @@ import {
   getCoreRowModel,
   flexRender,
   createColumnHelper,
-} from "@tantml:function_calls";
-import adminApi from "@/lib/api";
+} from "@tanstack/react-table";
+import { adminApi } from "@/lib/api";
 import type {
   Post,
   Comment,
   Stream,
-  PostType,
   ToggleVisibilityInput,
   DeleteContentInput,
 } from "@/types";
@@ -23,7 +22,6 @@ const streamColumnHelper = createColumnHelper<Stream>();
 export default function ContentModerationPage() {
   const [activeTab, setActiveTab] = useState<"posts" | "comments" | "streams">("posts");
   const [page, setPage] = useState(1);
-  const [type, setType] = useState<PostType | "">("");
   const [search, setSearch] = useState("");
   const [actionModal, setActionModal] = useState<{
     type: "hide" | "delete" | "end";
@@ -34,12 +32,11 @@ export default function ContentModerationPage() {
   const queryClient = useQueryClient();
 
   const { data: postsData } = useQuery({
-    queryKey: ["posts", { page, type, search }],
+    queryKey: ["posts", { page, search }],
     queryFn: () =>
       adminApi.getPosts({
         page,
         limit: 20,
-        type: type || undefined,
         search: search || undefined,
       }),
     enabled: activeTab === "posts",
@@ -108,7 +105,7 @@ export default function ContentModerationPage() {
       header: "ID",
       cell: (info) => <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>,
     }),
-    postColumnHelper.accessor((row) => row.author.name, {
+    postColumnHelper.accessor((row) => row.author?.name ?? "Unknown", {
       id: "author",
       header: "Author",
       cell: (info) => <span>{info.getValue()}</span>,
@@ -185,7 +182,7 @@ export default function ContentModerationPage() {
       header: "ID",
       cell: (info) => <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>,
     }),
-    commentColumnHelper.accessor((row) => row.author.name, {
+    commentColumnHelper.accessor((row) => row.author?.name ?? "Unknown", {
       id: "author",
       header: "Author",
       cell: (info) => <span>{info.getValue()}</span>,
@@ -230,7 +227,7 @@ export default function ContentModerationPage() {
       header: "ID",
       cell: (info) => <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>,
     }),
-    streamColumnHelper.accessor((row) => row.streamer.name, {
+    streamColumnHelper.accessor((row) => row.streamer?.name ?? "Unknown", {
       id: "streamer",
       header: "Streamer",
       cell: (info) => <span>{info.getValue()}</span>,
@@ -384,21 +381,6 @@ export default function ContentModerationPage() {
             }}
             className="flex-1 px-4 py-2 border rounded-lg"
           />
-          {activeTab === "posts" && (
-            <select
-              value={type}
-              onChange={(e) => {
-                setType(e.target.value as PostType | "");
-                setPage(1);
-              }}
-              className="px-4 py-2 border rounded-lg"
-            >
-              <option value="">All Types</option>
-              <option value="TEXT">Text</option>
-              <option value="IMAGE">Image</option>
-              <option value="VIDEO">Video</option>
-            </select>
-          )}
         </div>
 
         {/* Content */}

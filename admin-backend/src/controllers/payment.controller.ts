@@ -50,6 +50,12 @@ export const getPayments = async (req: Request, res: Response) => {
 export const getPaymentById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if(!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment ID is required",
+      });
+    }
     const payment = await paymentService.getPaymentById(id);
 
     res.json({
@@ -77,6 +83,12 @@ export const getPaymentById = async (req: Request, res: Response) => {
 export const refundPayment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if(!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment ID is required",
+      });
+    }
     const data = refundSchema.parse(req.body);
     const adminId = req.user!.id;
 

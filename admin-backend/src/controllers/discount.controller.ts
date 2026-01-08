@@ -13,7 +13,7 @@ const createDiscountSchema = z.object({
   discountValue: z.number().min(1, "Discount value must be at least 1"),
   maxRedemptions: z.number().min(1).optional(),
   minPurchaseAmount: z.number().min(0).optional(),
-  expiresAt: z.string().datetime().optional(),
+  expiresAt: z.iso.datetime().optional(),
   description: z.string().optional(),
 });
 
@@ -58,6 +58,12 @@ export const getDiscountCodes = async (req: Request, res: Response) => {
 export const getDiscountCodeById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if(!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount code ID is required",
+      });
+    }
     const code = await discountService.getDiscountCodeById(id);
 
     res.json({
@@ -128,6 +134,12 @@ export const createDiscountCode = async (req: Request, res: Response) => {
 export const updateDiscountCode = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if(!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount code ID is required",
+      });
+    }
     const data = updateDiscountSchema.parse(req.body);
     const adminId = req.user!.id;
 
@@ -172,6 +184,12 @@ export const updateDiscountCode = async (req: Request, res: Response) => {
 export const deleteDiscountCode = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if(!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount code ID is required",
+      });
+    }
     const adminId = req.user!.id;
 
     await discountService.deleteDiscountCode(id, adminId);

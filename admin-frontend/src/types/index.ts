@@ -120,6 +120,7 @@ export interface UserFilterParams {
 
 // Report types
 export interface Report {
+  reported: unknown;
   id: string;
   reporterId: string;
   reportedUserId: string;
@@ -212,6 +213,7 @@ export interface AdminActivityStats {
 
 // Payment types
 export interface Payment {
+  buyer: unknown;
   id: string;
   userId: string;
   packageId: string;
@@ -299,6 +301,7 @@ export interface UpdateGiftInput {
 
 // Discount code types
 export interface DiscountCode {
+  maxUses: number | null;
   id: string;
   code: string;
   type: DiscountType;
@@ -366,6 +369,7 @@ export interface Comment {
   userId: string;
   isHidden: boolean;
   createdAt: string;
+  author?: User;
   user?: User;
   post?: {
     id: string;
@@ -481,13 +485,12 @@ export interface PlatformOverview {
 // Dashboard types
 export interface DashboardStats {
   totalUsers: number;
+  totalCreators: number;
+  activeStreams: number;
   totalRevenue: number;
-  activeCreators: number;
-  pendingReports: number;
-  newUsersToday: number;
-  revenueToday: number;
-  suspendedUsers: number;
   pendingApplications: number;
+  suspendedUsers: number;
+  timestamp: string;
 }
 
 // Creator Application types

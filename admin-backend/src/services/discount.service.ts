@@ -142,14 +142,18 @@ class DiscountService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "CREATE_DISCOUNT_CODE",
+          action: "CREATE_DISCOUNT_CODE" as any,
           adminId: adminId,
-          details: {
+          targetType: "DISCOUNT_CODE",
+          targetId: created.id,
+          description: `Created discount code: ${created.code}`,
+          metadata: {
             discountCodeId: created.id,
             code: created.code,
             discountType: created.discountType,
             discountValue: created.discountValue,
           },
+          ipAddress: null,
         },
       });
 
@@ -186,13 +190,17 @@ class DiscountService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "UPDATE_DISCOUNT_CODE",
+          action: "UPDATE_DISCOUNT_CODE" as any,
           adminId: adminId,
-          details: {
+          targetType: "DISCOUNT_CODE",
+          targetId: id,
+          description: `Updated discount code: ${code.code}`,
+          metadata: {
             discountCodeId: id,
             code: code.code,
             changes: data,
           },
+          ipAddress: null,
         },
       });
 
@@ -215,12 +223,16 @@ class DiscountService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "DELETE_DISCOUNT_CODE",
+          action: "DELETE_DISCOUNT_CODE" as any,
           adminId: adminId,
-          details: {
+          targetType: "DISCOUNT_CODE",
+          targetId: id,
+          description: `Deleted discount code: ${code.code}`,
+          metadata: {
             discountCodeId: id,
             code: code.code,
           },
+          ipAddress: null,
         },
       });
     });
@@ -242,7 +254,7 @@ class DiscountService {
       prisma.discountRedemption.count({ where }),
       prisma.discountRedemption.aggregate({
         where,
-        _sum: { bonusCoins: true },
+        _sum: { bonusCoinsAwarded: true },
       }),
       prisma.discountRedemption.groupBy({
         by: ["userId"],
@@ -252,7 +264,7 @@ class DiscountService {
 
     return {
       totalRedemptions,
-      totalBonusCoins: totalBonusCoins._sum.bonusCoins || 0,
+      totalBonusCoins: totalBonusCoins._sum?.bonusCoinsAwarded || 0,
       uniqueUsers: uniqueUsers.length,
     };
   }

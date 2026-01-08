@@ -6,7 +6,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import adminApi from "@/lib/api";
+import { adminApi } from "@/lib/api";
 import type {
   Report,
   ReportStatus,
@@ -76,14 +76,16 @@ export default function ReportsPage() {
   const columns = [
     columnHelper.accessor("id", {
       header: "ID",
-      cell: (info) => <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>,
+      cell: (info) => (
+        <span className="font-mono text-xs">{info.getValue().slice(0, 8)}</span>
+      ),
     }),
-    columnHelper.accessor((row) => row.reporter.name, {
+    columnHelper.accessor((row) => row.reporter?.name, {
       id: "reporter",
       header: "Reporter",
       cell: (info) => <span>{info.getValue()}</span>,
     }),
-    columnHelper.accessor((row) => row.reported.name, {
+    columnHelper.accessor((row) => (row.reported as { name: string }).name, {
       id: "reported",
       header: "Reported User",
       cell: (info) => <span>{info.getValue()}</span>,
@@ -103,7 +105,9 @@ export default function ReportsPage() {
           DISMISSED: "bg-gray-100 text-gray-800",
         };
         return (
-          <span className={`px-2 py-1 rounded text-xs font-medium ${colors[status]}`}>
+          <span
+            className={`px-2 py-1 rounded text-xs font-medium ${colors[status]}`}
+          >
             {status.replace("_", " ")}
           </span>
         );
@@ -129,7 +133,8 @@ export default function ReportsPage() {
                 Review
               </button>
             )}
-            {(report.status === "PENDING" || report.status === "UNDER_REVIEW") && (
+            {(report.status === "PENDING" ||
+              report.status === "UNDER_REVIEW") && (
               <>
                 <button
                   onClick={() =>
@@ -174,11 +179,11 @@ export default function ReportsPage() {
   const handleAction = () => {
     if (!actionModal) return;
 
-    const data = { note: actionModal.note };
-
     if (actionModal.type === "resolve") {
+      const data: ResolveReportInput = { resolution: actionModal.note };
       resolveMutation.mutate({ id: actionModal.report.id, data });
     } else {
+      const data: DismissReportInput = { reason: actionModal.note };
       dismissMutation.mutate({ id: actionModal.report.id, data });
     }
   };
@@ -196,15 +201,21 @@ export default function ReportsPage() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Pending</p>
-            <p className="text-2xl font-bold text-yellow-600">{stats.pendingReports}</p>
+            <p className="text-2xl font-bold text-yellow-600">
+              {stats.pendingReports}
+            </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Under Review</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.underReviewReports}</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {stats.underReviewReports}
+            </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Resolved</p>
-            <p className="text-2xl font-bold text-green-600">{stats.resolvedReports}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {stats.resolvedReports}
+            </p>
           </div>
         </div>
       )}
@@ -249,7 +260,10 @@ export default function ReportsPage() {
                     key={header.id}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </th>
                 ))}
               </tr>
@@ -300,26 +314,34 @@ export default function ReportsPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">
-              {actionModal.type === "resolve" ? "Resolve Report" : "Dismiss Report"}
+              {actionModal.type === "resolve"
+                ? "Resolve Report"
+                : "Dismiss Report"}
             </h2>
             <div className="mb-4 p-3 bg-gray-50 rounded">
               <p className="text-sm text-gray-600">
-                <strong>Reporter:</strong> {actionModal.report.reporter.name}
+                <strong>Reporter:</strong> {actionModal.report.reporter?.name || 'N/A'}
               </p>
               <p className="text-sm text-gray-600">
-                <strong>Reported:</strong> {actionModal.report.reported.name}
+                <strong>Reported:</strong> {(actionModal.report.reported as { name: string }).name}
               </p>
               <p className="text-sm text-gray-600">
                 <strong>Reason:</strong> {actionModal.report.reason}
               </p>
-              <p className="text-sm text-gray-600 mt-2">{actionModal.report.description}</p>
+              <p className="text-sm text-gray-600 mt-2">
+                {actionModal.report.description}
+              </p>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Admin Note</label>
+              <label className="block text-sm font-medium mb-2">
+                Admin Note
+              </label>
               <textarea
                 value={actionModal.note}
                 onChange={(e) =>
-                  setActionModal((prev) => (prev ? { ...prev, note: e.target.value } : null))
+                  setActionModal((prev) =>
+                    prev ? { ...prev, note: e.target.value } : null
+                  )
                 }
                 className="w-full px-3 py-2 border rounded-lg"
                 rows={3}
@@ -341,7 +363,9 @@ export default function ReportsPage() {
                   dismissMutation.isPending
                 }
                 className={`px-4 py-2 text-white rounded-lg disabled:opacity-50 ${
-                  actionModal.type === "resolve" ? "bg-green-600" : "bg-gray-600"
+                  actionModal.type === "resolve"
+                    ? "bg-green-600"
+                    : "bg-gray-600"
                 }`}
               >
                 {resolveMutation.isPending || dismissMutation.isPending

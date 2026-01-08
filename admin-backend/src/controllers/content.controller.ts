@@ -47,6 +47,13 @@ export const togglePostVisibility = async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = toggleVisibilitySchema.parse(req.body);
     
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Post ID is required",
+      });
+    }
+    
     if (!req.user?.id) {
       return res.status(401).json({
         success: false,
@@ -93,7 +100,22 @@ export const deletePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { reason } = deleteContentSchema.parse(req.body);
-    const adminId = req.user!.id;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Post ID is required",
+      });
+    }
+    
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    
+    const adminId: string = req.user.id;
 
     await contentService.deletePost(id, adminId, reason);
 
@@ -159,7 +181,22 @@ export const deleteComment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { reason } = deleteContentSchema.parse(req.body);
-    const adminId = req.user!.id;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment ID is required",
+      });
+    }
+    
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    
+    const adminId: string = req.user.id;
 
     await contentService.deleteComment(id, adminId, reason);
 
@@ -225,7 +262,22 @@ export const endStream = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { reason } = deleteContentSchema.parse(req.body);
-    const adminId = req.user!.id;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Stream ID is required",
+      });
+    }
+    
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    
+    const adminId: string = req.user.id;
 
     const stream = await contentService.endStream(id, adminId, reason);
 

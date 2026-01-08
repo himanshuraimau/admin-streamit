@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { adminApi } from "@/lib/api";
-import { DashboardStats } from "@/types";
+import type { DashboardStats } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 import { Users, UserCheck, Radio, DollarSign, AlertTriangle, UserX } from "lucide-react";
 
