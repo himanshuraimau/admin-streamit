@@ -1,0 +1,927 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+model User {
+  id            String    @id
+  name          String
+  age           Int?
+  email         String
+  phone         String?
+  username      String    @unique
+  bio           String?   @db.Text
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  // Admin and moderation fields
+  role               UserRole       @default(USER)
+  isSuspended        Boolean        @default(false)
+  suspendedReason    String?        @db.Text
+  suspendedBy        String? // Admin user ID
+  suspendedAt        DateTime?
+  suspensionExpiresAt DateTime? // null = permanent suspension
+  adminNotes         String?        @db.Text
+  lastLoginAt        DateTime?
+  lastLoginIp        String?
+
+  // Creator application relationship
+  creatorApplication CreatorApplication?
+
+  // Streaming relationships (only for approved creators)
+  stream Stream?
+
+  // Social relationships
+  following  Follow[] @relation("Following")
+  followedBy Follow[] @relation("FollowedBy")
+  blocking   Block[]  @relation("Blocking")
+  blockedBy  Block[]  @relation("BlockedBy")
+
+  // Content relationships
+  posts        Post[]
+  likes        Like[]
+  comments     Comment[]
+  commentLikes CommentLike[]
+
+  // Payment relationships
+  coinWallet    CoinWallet?
+  coinPurchases CoinPurchase[]
+  giftsSent     GiftTransaction[] @relation("GiftsSent")
+  giftsReceived GiftTransaction[] @relation("GiftsReceived")
+
+  // Discount relationships
+  ownedDiscountCodes  DiscountCode[]       @relation("OwnedDiscountCodes")
+  discountRedemptions DiscountRedemption[]
+
+  // Moderation relationships
+  reportsSubmitted Report[] @relation("ReportSubmitter")
+  reportsReceived  Report[] @relation("ReportedUser")
+
+  // Admin activity tracking
+  adminActionsPerformed AdminActivityLog[] @relation("AdminUser")
+  adminActionsReceived  AdminActivityLog[] @relation("AffectedUser")
+
+  @@unique([email])
+  @@index([role])
+  @@index([isSuspended])
+  @@index([email])
+  @@index([username])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  username  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+// Creator Application Models
+model CreatorApplication {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Application status and metadata
+  status          ApplicationStatus @default(DRAFT)
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
+  reviewedBy      String? // Admin user ID who reviewed
+  rejectionReason String? // Reason for rejection if applicable
+
+  // Identity verification data
+  identity IdentityVerification?
+
+  // Financial information
+  financial FinancialDetails?
+
+  // Profile information
+  profile CreatorProfile?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("creator_application")
+}
+
+model IdentityVerification {
+  id                   String             @id @default(cuid())
+  creatorApplicationId String             @unique
+  creatorApplication   CreatorApplication @relation(fields: [creatorApplicationId], references: [id], onDelete: Cascade)
+
+  idType         IDType
+  idDocumentUrl  String // URL to uploaded ID document
+  selfiePhotoUrl String // URL to uploaded selfie photo
+
+  // Verification status
+  isVerified Boolean   @default(false)
+  verifiedAt DateTime?
+  verifiedBy String? // Admin user ID who verified
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("identity_verification")
+}
+
+model FinancialDetails {
+  id                   String             @id @default(cuid())
+  creatorApplicationId String             @unique
+  creatorApplication   CreatorApplication @relation(fields: [creatorApplicationId], references: [id], onDelete: Cascade)
+
+  accountHolderName String
+  accountNumber     String // Encrypted in application
+  ifscCode          String
+  panNumber         String // Encrypted in application
+
+  // Verification status
+  isVerified Boolean   @default(false)
+  verifiedAt DateTime?
+  verifiedBy String? // Admin user ID who verified
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("financial_details")
+}
+
+model CreatorProfile {
+  id                   String             @id @default(cuid())
+  creatorApplicationId String             @unique
+  creatorApplication   CreatorApplication @relation(fields: [creatorApplicationId], references: [id], onDelete: Cascade)
+
+  profilePictureUrl String // URL to uploaded profile picture
+  bio               String
+  categories        ContentCategory[] // Array of content categories
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("creator_profile")
+}
+
+// File upload tracking for better management
+model FileUpload {
+  id           String      @id @default(cuid())
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  uploadedBy   String // User ID who uploaded
+  purpose      FilePurpose // What the file is used for
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("file_upload")
+}
+
+// Streaming Models (for approved creators only)
+model Stream {
+  id          String  @id @default(cuid())
+  title       String  @db.Text
+  description String? @db.Text
+  thumbnail   String? @db.Text
+
+  // Stream status
+  isLive Boolean @default(false)
+
+  // Chat settings
+  isChatEnabled       Boolean @default(true)
+  isChatDelayed       Boolean @default(false)
+  isChatFollowersOnly Boolean @default(false)
+
+  // Creator relationship
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Gift relationships
+  giftTransactions GiftTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([title])
+  @@index([isLive])
+  @@map("stream")
+}
+
+// Social following system
+model Follow {
+  id          String @id @default(cuid())
+  followerId  String
+  followingId String
+
+  follower  User @relation(name: "Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation(name: "FollowedBy", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follow")
+}
+
+// User blocking system
+model Block {
+  id        String @id @default(cuid())
+  blockerId String
+  blockedId String
+
+  blocker User @relation("Blocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("BlockedBy", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+  @@map("block")
+}
+
+// Social Media Content Models
+model Post {
+  id      String   @id @default(cuid())
+  content String?  @db.Text // Text content (optional for media-only posts)
+  type    PostType @default(TEXT)
+
+  // Media attachments
+  media PostMedia[]
+
+  // Engagement
+  likes         Like[]
+  comments      Comment[]
+  likesCount    Int       @default(0)
+  commentsCount Int       @default(0)
+
+  // Visibility and settings
+  isPublic      Boolean @default(true)
+  allowComments Boolean @default(true)
+
+  // Moderation
+  isHidden        Boolean  @default(false) // Hidden by admin/moderation
+  hiddenReason    String?  @db.Text
+  hiddenBy        String? // Admin user ID
+  hiddenAt        DateTime?
+  
+  // Content flags
+  isFlagged       Boolean @default(false)
+  flagCount       Int     @default(0)
+  reports         Report[]
+
+  // Author
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([type])
+  @@index([isPublic])
+  @@index([isHidden])
+  @@index([isFlagged])
+  @@map("post")
+}
+
+// Media attachments for posts
+model PostMedia {
+  id       String    @id @default(cuid())
+  url      String    @db.Text
+  type     MediaType
+  mimeType String
+  size     Int?
+  width    Int?
+  height   Int?
+  duration Int? // For videos, in seconds
+
+  // Thumbnail for videos
+  thumbnailUrl String? @db.Text
+
+  // Post relationship
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([type])
+  @@map("post_media")
+}
+
+// Likes system
+model Like {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([createdAt])
+  @@map("like")
+}
+
+// Comments system
+model Comment {
+  id      String @id @default(cuid())
+  content String @db.Text
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  // Engagement
+  likes      CommentLike[]
+  likesCount Int           @default(0)
+
+  // Moderation
+  isHidden     Boolean  @default(false)
+  hiddenReason String?  @db.Text
+  hiddenBy     String? // Admin user ID
+  hiddenAt     DateTime?
+  reports      Report[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([postId])
+  @@index([parentId])
+  @@index([createdAt])
+  @@index([isHidden])
+  @@map("comment")
+}
+
+// Comment likes (separate from post likes)
+model CommentLike {
+  id        String @id @default(cuid())
+  userId    String
+  commentId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
+  @@index([userId])
+  @@index([commentId])
+  @@map("comment_like")
+}
+
+// ============================================
+// PAYMENT & MONETIZATION MODELS
+// ============================================
+
+// User's coin wallet
+model CoinWallet {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  balance     Int @default(0) // Current coin balance
+  totalEarned Int @default(0) // Lifetime earnings (for creators)
+  totalSpent  Int @default(0) // Lifetime spending (for viewers)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("coin_wallet")
+}
+
+// Coin packages available for purchase
+model CoinPackage {
+  id       String @id @default(cuid())
+  name     String // e.g., "Starter Pack", "Premium Pack"
+  coins    Int // Number of coins in package
+  price    Int // Price in smallest currency unit (paise for INR)
+  currency String @default("INR")
+
+  // Bonus and promotions
+  bonusCoins Int     @default(0) // Bonus coins given with purchase
+  isActive   Boolean @default(true)
+
+  // Metadata
+  description String?
+  sortOrder   Int     @default(0)
+
+  purchases CoinPurchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@map("coin_package")
+}
+
+// Record of coin purchases
+model CoinPurchase {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  packageId String
+  package   CoinPackage @relation(fields: [packageId], references: [id])
+
+  // Purchase details
+  coins      Int // Coins purchased (base amount)
+  bonusCoins Int    @default(0)
+  totalCoins Int // coins + bonusCoins
+  amount     Int // Amount paid in smallest currency unit
+  currency   String @default("INR")
+
+  // Discount information
+  discountCodeId     String?
+  discountBonusCoins Int     @default(0) // Bonus coins from discount code
+
+  // Relationship to discount redemption
+  discountRedemption DiscountRedemption?
+
+  // Payment details
+  paymentGateway String? @default("dodo") // "dodo", "razorpay", etc.
+  transactionId  String? @unique // External transaction ID (Dodo payment_id)
+  orderId        String  @unique // Internal order ID
+
+  // Status tracking
+  status        PurchaseStatus @default(PENDING)
+  failureReason String?
+
+  // Payment gateway response (store as JSON)
+  paymentData Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([transactionId])
+  @@map("coin_purchase")
+}
+
+// Virtual gifts that users can send to creators
+model Gift {
+  id          String  @id @default(cuid())
+  name        String // e.g., "Heart", "Diamond", "Crown"
+  description String?
+
+  // Gift properties
+  coinPrice Int // Cost in coins
+
+  // Visual representation
+  imageUrl     String // Static image
+  animationUrl String? // Animation URL (Lottie JSON or GIF)
+
+  // Features
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  // Usage tracking
+  giftsSent GiftTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@map("gift")
+}
+
+// Record of gifts sent from users to creators
+model GiftTransaction {
+  id String @id @default(cuid())
+
+  // Parties involved
+  senderId String
+  sender   User   @relation("GiftsSent", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User   @relation("GiftsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  giftId String
+  gift   Gift   @relation(fields: [giftId], references: [id])
+
+  // Transaction details
+  coinAmount Int // Coins deducted from sender
+  quantity   Int @default(1) // Number of gifts sent
+
+  // Context
+  streamId String? // If sent during a live stream
+  stream   Stream? @relation(fields: [streamId], references: [id], onDelete: SetNull)
+
+  message String? // Optional message with gift
+
+  createdAt DateTime @default(now())
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([streamId, createdAt])
+  @@index([createdAt])
+  @@map("gift_transaction")
+}
+
+// Enums
+enum ApplicationStatus {
+  DRAFT
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum IDType {
+  AADHAAR
+  PASSPORT
+  DRIVERS_LICENSE
+}
+
+enum ContentCategory {
+  EDUCATION
+  ENTERTAINMENT
+  LIFESTYLE
+  GAMING
+  MUSIC
+  SPORTS
+  TECHNOLOGY
+  COOKING
+  ART
+  FITNESS
+}
+
+enum FilePurpose {
+  ID_DOCUMENT
+  SELFIE_PHOTO
+  PROFILE_PICTURE
+  AVATAR
+  STREAM_THUMBNAIL
+  STREAM_OVERLAY
+  POST_MEDIA
+  OTHER
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+  MIXED // Text + Media
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  GIF
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// DISCOUNT CODE MODELS
+// ============================================
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CodeType {
+  PROMOTIONAL
+  REWARD
+}
+
+// Discount codes (both promotional and reward)
+model DiscountCode {
+  id   String @id @default(cuid())
+  code String @unique
+
+  // Discount configuration
+  discountType  DiscountType // PERCENTAGE or FIXED
+  discountValue Int // Percentage (1-100) or fixed amount in paise
+
+  // Code type and ownership
+  codeType  CodeType // PROMOTIONAL or REWARD
+  createdBy String? // Admin ID for promotional, null for reward
+  ownerId   String? // User ID for reward codes, null for promotional
+  owner     User?    @relation("OwnedDiscountCodes", fields: [ownerId], references: [id])
+
+  // Usage limits
+  maxRedemptions     Int? // null = unlimited (for promotional)
+  currentRedemptions Int     @default(0)
+  isOneTimeUse       Boolean @default(true) // For reward codes
+
+  // Validity
+  minPurchaseAmount Int? // Minimum purchase in paise
+  expiresAt         DateTime?
+  isActive          Boolean   @default(true)
+
+  // Metadata
+  description String?
+
+  // Relationships
+  redemptions DiscountRedemption[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([code])
+  @@index([ownerId])
+  @@index([codeType, isActive])
+  @@map("discount_code")
+}
+
+
+// ============================================
+// ADMIN & MODERATION MODELS
+// ============================================
+
+// User reports for moderation
+model Report {
+  id String @id @default(cuid())
+
+  // Report details
+  reason      ReportReason
+  description String?      @db.Text
+
+  // Parties involved
+  reporterId String
+  reporter   User   @relation("ReportSubmitter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  reportedUserId String
+  reportedUser   User   @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+
+  // Content being reported (one of these will be set)
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: SetNull)
+  streamId  String? // For reporting streams
+
+  // Report status
+  status     ReportStatus @default(PENDING)
+  reviewedBy String? // Admin user ID
+  reviewedAt DateTime?
+  resolution String?      @db.Text // Admin notes on resolution
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([postId])
+  @@index([commentId])
+  @@map("report")
+}
+
+// Admin activity log for audit trail
+model AdminActivityLog {
+  id String @id @default(cuid())
+
+  // Admin who performed the action
+  adminId String
+  admin   User   @relation("AdminUser", fields: [adminId], references: [id], onDelete: Cascade)
+
+  // Action details
+  action      AdminAction
+  targetType  String // "user", "post", "comment", "stream", "payment", etc.
+  targetId    String // ID of the affected resource
+  description String      @db.Text
+
+  // Affected user (if applicable)
+  affectedUserId String?
+  affectedUser   User?   @relation("AffectedUser", fields: [affectedUserId], references: [id], onDelete: SetNull)
+
+  // Additional context
+  metadata Json? // Store additional data as JSON
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([affectedUserId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("admin_activity_log")
+}
+
+// System settings that admins can configure
+model SystemSetting {
+  id String @id @default(cuid())
+
+  key         String  @unique
+  value       String  @db.Text
+  description String? @db.Text
+  isPublic    Boolean @default(false) // Whether setting is visible to non-admins
+
+  updatedBy String // Admin user ID
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([isPublic])
+  @@map("system_setting")
+}
+
+// Platform announcements
+model Announcement {
+  id String @id @default(cuid())
+
+  title   String
+  content String   @db.Text
+  type    AnnouncementType @default(INFO)
+
+  // Visibility
+  isActive Boolean @default(true)
+  startsAt DateTime?
+  endsAt   DateTime?
+
+  // Targeting
+  targetRole UserRole? // null = all users
+  isPinned   Boolean   @default(false)
+
+  createdBy String // Admin user ID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, startsAt, endsAt])
+  @@index([type])
+  @@index([isPinned])
+  @@map("announcement")
+}
+
+// ============================================
+// ADMIN ENUMS
+// ============================================
+
+enum UserRole {
+  USER
+  CREATOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  HATE_SPEECH
+  NUDITY
+  VIOLENCE
+  COPYRIGHT
+  MISINFORMATION
+  SELF_HARM
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum AdminAction {
+  // User actions
+  USER_SUSPENDED
+  USER_UNSUSPENDED
+  USER_ROLE_CHANGED
+  USER_DELETED
+  USER_UPDATED
+  
+  // Content moderation
+  POST_HIDDEN
+  POST_UNHIDDEN
+  POST_DELETED
+  COMMENT_HIDDEN
+  COMMENT_UNHIDDEN
+  COMMENT_DELETED
+  
+  // Creator management
+  CREATOR_APPLICATION_APPROVED
+  CREATOR_APPLICATION_REJECTED
+  CREATOR_STATUS_REVOKED
+  
+  // Payment management
+  PAYMENT_REFUNDED
+  PAYMENT_VERIFIED
+  DISCOUNT_CODE_CREATED
+  DISCOUNT_CODE_DEACTIVATED
+  
+  // Report handling
+  REPORT_REVIEWED
+  REPORT_DISMISSED
+  
+  // System management
+  SETTING_UPDATED
+  ANNOUNCEMENT_CREATED
+  ANNOUNCEMENT_UPDATED
+  ANNOUNCEMENT_DELETED
+}
+
+enum AnnouncementType {
+  INFO
+  WARNING
+  MAINTENANCE
+  FEATURE
+  PROMOTION
+}
+model DiscountRedemption {
+  id String @id @default(cuid())
+
+  discountCodeId String
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  purchaseId String       @unique
+  purchase   CoinPurchase @relation(fields: [purchaseId], references: [id])
+
+  // Bonus coins awarded
+  bonusCoinsAwarded Int // Extra coins given from discount
+
+  createdAt DateTime @default(now())
+
+  @@index([discountCodeId])
+  @@index([userId])
+  @@map("discount_redemption")
+}
