@@ -150,7 +150,7 @@ class PaymentService {
       await tx.adminActivityLog.create({
         data: {
           action: "REFUND_PAYMENT",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: purchase.userId,
           details: {
             purchaseId: id,

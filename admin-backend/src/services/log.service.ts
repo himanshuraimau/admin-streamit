@@ -30,7 +30,7 @@ class LogService {
     const where: any = {};
 
     if (adminId) {
-      where.adminUserId = adminId;
+      where.adminId = adminId;
     }
 
     if (affectedUserId) {
@@ -142,7 +142,7 @@ class LogService {
     const where: any = {};
 
     if (adminId) {
-      where.adminUserId = adminId;
+      where.adminId = adminId;
     }
 
     if (startDate || endDate) {
@@ -159,7 +159,7 @@ class LogService {
         _count: true,
       }),
       prisma.adminActivityLog.groupBy({
-        by: ["adminUserId"],
+        by: ["adminId"],
         where,
         _count: true,
       }),
@@ -186,7 +186,7 @@ class LogService {
         count: a._count,
       })),
       actionsByAdmin: actionsByAdmin.map((a) => ({
-        adminId: a.adminUserId,
+        adminId: a.adminId,
         count: a._count,
       })),
       recentActions,

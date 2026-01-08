@@ -410,7 +410,7 @@ export class AdminService {
     try {
       await prisma.adminActivityLog.create({
         data: {
-          adminUserId: data.adminId,
+          adminId: data.adminId,
           action: data.action,
           targetType: data.targetType,
           targetId: data.targetId,

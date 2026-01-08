@@ -100,7 +100,7 @@ class ContentService {
       await tx.adminActivityLog.create({
         data: {
           action: data.isHidden ? "POST_HIDDEN" : "POST_UNHIDDEN",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: post.authorId,
           details: {
             postId,
@@ -131,7 +131,7 @@ class ContentService {
       await tx.adminActivityLog.create({
         data: {
           action: "POST_DELETED",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: post.authorId,
           details: {
             postId,
@@ -238,7 +238,7 @@ class ContentService {
       await tx.adminActivityLog.create({
         data: {
           action: "COMMENT_DELETED",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: comment.userId,
           details: {
             commentId,
@@ -343,7 +343,7 @@ class ContentService {
       await tx.adminActivityLog.create({
         data: {
           action: "STREAM_ENDED",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: stream.userId,
           details: {
             streamId,

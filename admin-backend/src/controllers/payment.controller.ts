@@ -34,7 +34,7 @@ export const getPayments = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -92,7 +92,7 @@ export const refundPayment = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 

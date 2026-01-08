@@ -143,7 +143,7 @@ class DiscountService {
       await tx.adminActivityLog.create({
         data: {
           action: "CREATE_DISCOUNT_CODE",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             discountCodeId: created.id,
             code: created.code,
@@ -187,7 +187,7 @@ class DiscountService {
       await tx.adminActivityLog.create({
         data: {
           action: "UPDATE_DISCOUNT_CODE",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             discountCodeId: id,
             code: code.code,
@@ -216,7 +216,7 @@ class DiscountService {
       await tx.adminActivityLog.create({
         data: {
           action: "DELETE_DISCOUNT_CODE",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             discountCodeId: id,
             code: code.code,

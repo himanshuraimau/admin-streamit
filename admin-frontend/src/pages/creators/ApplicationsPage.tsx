@@ -19,7 +19,11 @@ export function CreatorApplicationsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    loadApplications();
+  }, [loadApplications]);
 
   const handleApprove = async (id: string) => {
     try {
@@ -109,14 +113,14 @@ export function CreatorApplicationsPage() {
                 <tr key={app.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="h-10 w-10 flex-shrink-0">
+                      <div className="h-10 w-10 shrink-0">
                         <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          {app.user.name?.charAt(0) || "U"}
+                          {app.user?.name?.charAt(0) || "U"}
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="font-medium text-gray-900">{app.user.name}</div>
-                        <div className="text-sm text-gray-500">{app.user.email}</div>
+                        <div className="font-medium text-gray-900">{app.user?.name || "Unknown"}</div>
+                        <div className="text-sm text-gray-500">{app.user?.email || "N/A"}</div>
                       </div>
                     </div>
                   </td>

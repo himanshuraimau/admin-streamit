@@ -1,73 +1,80 @@
-// Enums from backend
-export enum UserRole {
-  USER = "USER",
-  CREATOR = "CREATOR",
-  ADMIN = "ADMIN",
-  SUPER_ADMIN = "SUPER_ADMIN",
-}
+// Const enum values (compile-time only, no runtime overhead)
+export const UserRole = {
+  USER: "USER",
+  CREATOR: "CREATOR",
+  ADMIN: "ADMIN",
+  SUPER_ADMIN: "SUPER_ADMIN",
+} as const;
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
-export enum ReportStatus {
-  PENDING = "PENDING",
-  UNDER_REVIEW = "UNDER_REVIEW",
-  RESOLVED = "RESOLVED",
-  DISMISSED = "DISMISSED",
-}
+export const ReportStatus = {
+  PENDING: "PENDING",
+  UNDER_REVIEW: "UNDER_REVIEW",
+  RESOLVED: "RESOLVED",
+  DISMISSED: "DISMISSED",
+} as const;
+export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
 
-export enum ReportReason {
-  SPAM = "SPAM",
-  HARASSMENT = "HARASSMENT",
-  HATE_SPEECH = "HATE_SPEECH",
-  NUDITY = "NUDITY",
-  VIOLENCE = "VIOLENCE",
-  COPYRIGHT = "COPYRIGHT",
-  MISINFORMATION = "MISINFORMATION",
-  SELF_HARM = "SELF_HARM",
-  OTHER = "OTHER",
-}
+export const ReportReason = {
+  SPAM: "SPAM",
+  HARASSMENT: "HARASSMENT",
+  HATE_SPEECH: "HATE_SPEECH",
+  NUDITY: "NUDITY",
+  VIOLENCE: "VIOLENCE",
+  COPYRIGHT: "COPYRIGHT",
+  MISINFORMATION: "MISINFORMATION",
+  SELF_HARM: "SELF_HARM",
+  OTHER: "OTHER",
+} as const;
+export type ReportReason = (typeof ReportReason)[keyof typeof ReportReason];
 
-export enum AdminAction {
-  USER_SUSPENDED = "USER_SUSPENDED",
-  USER_UNSUSPENDED = "USER_UNSUSPENDED",
-  USER_ROLE_CHANGED = "USER_ROLE_CHANGED",
-  USER_DELETED = "USER_DELETED",
-  POST_HIDDEN = "POST_HIDDEN",
-  POST_UNHIDDEN = "POST_UNHIDDEN",
-  POST_DELETED = "POST_DELETED",
-  COMMENT_HIDDEN = "COMMENT_HIDDEN",
-  COMMENT_DELETED = "COMMENT_DELETED",
-  CREATOR_APPLICATION_APPROVED = "CREATOR_APPLICATION_APPROVED",
-  CREATOR_APPLICATION_REJECTED = "CREATOR_APPLICATION_REJECTED",
-  PAYMENT_REFUNDED = "PAYMENT_REFUNDED",
-  DISCOUNT_CODE_CREATED = "DISCOUNT_CODE_CREATED",
-  DISCOUNT_CODE_UPDATED = "DISCOUNT_CODE_UPDATED",
-  DISCOUNT_CODE_DELETED = "DISCOUNT_CODE_DELETED",
-  GIFT_CREATED = "GIFT_CREATED",
-  GIFT_UPDATED = "GIFT_UPDATED",
-  GIFT_DELETED = "GIFT_DELETED",
-  REPORT_REVIEWED = "REPORT_REVIEWED",
-  REPORT_DISMISSED = "REPORT_DISMISSED",
-  STREAM_ENDED = "STREAM_ENDED",
-  SETTING_UPDATED = "SETTING_UPDATED",
-}
+export const AdminAction = {
+  USER_SUSPENDED: "USER_SUSPENDED",
+  USER_UNSUSPENDED: "USER_UNSUSPENDED",
+  USER_ROLE_CHANGED: "USER_ROLE_CHANGED",
+  USER_DELETED: "USER_DELETED",
+  POST_HIDDEN: "POST_HIDDEN",
+  POST_UNHIDDEN: "POST_UNHIDDEN",
+  POST_DELETED: "POST_DELETED",
+  COMMENT_HIDDEN: "COMMENT_HIDDEN",
+  COMMENT_DELETED: "COMMENT_DELETED",
+  CREATOR_APPLICATION_APPROVED: "CREATOR_APPLICATION_APPROVED",
+  CREATOR_APPLICATION_REJECTED: "CREATOR_APPLICATION_REJECTED",
+  PAYMENT_REFUNDED: "PAYMENT_REFUNDED",
+  DISCOUNT_CODE_CREATED: "DISCOUNT_CODE_CREATED",
+  DISCOUNT_CODE_UPDATED: "DISCOUNT_CODE_UPDATED",
+  DISCOUNT_CODE_DELETED: "DISCOUNT_CODE_DELETED",
+  GIFT_CREATED: "GIFT_CREATED",
+  GIFT_UPDATED: "GIFT_UPDATED",
+  GIFT_DELETED: "GIFT_DELETED",
+  REPORT_REVIEWED: "REPORT_REVIEWED",
+  REPORT_DISMISSED: "REPORT_DISMISSED",
+  STREAM_ENDED: "STREAM_ENDED",
+  SETTING_UPDATED: "SETTING_UPDATED",
+} as const;
+export type AdminAction = (typeof AdminAction)[keyof typeof AdminAction];
 
-export enum PurchaseStatus {
-  PENDING = "PENDING",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-  REFUNDED = "REFUNDED",
-}
+export const PurchaseStatus = {
+  PENDING: "PENDING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+  REFUNDED: "REFUNDED",
+} as const;
+export type PurchaseStatus = (typeof PurchaseStatus)[keyof typeof PurchaseStatus];
 
-export enum DiscountType {
-  PERCENTAGE = "PERCENTAGE",
-  FIXED = "FIXED",
-}
+export const DiscountType = {
+  PERCENTAGE: "PERCENTAGE",
+  FIXED: "FIXED",
+} as const;
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType];
 
-export enum PostType {
-  TEXT = "TEXT",
-  IMAGE = "IMAGE",
-  VIDEO = "VIDEO",
-  POLL = "POLL",
-}
+export const PostType = {
+  TEXT: "TEXT",
+  IMAGE: "IMAGE",
+  VIDEO: "VIDEO",
+  POLL: "POLL",
+} as const;
+export type PostType = (typeof PostType)[keyof typeof PostType];
 
 // API Response types
 export interface PaginationResult {
@@ -84,7 +91,7 @@ export interface ApiResponse<T> {
 
 export interface ApiError {
   error: string;
-  details?: any;
+  details?: unknown;
 }
 
 // User types
@@ -128,8 +135,8 @@ export interface Report {
   createdAt: string;
   reporter?: User;
   reportedUser?: User;
-  post?: any;
-  comment?: any;
+  post?: Post;
+  comment?: Comment;
 }
 
 export interface ReportFilterParams {
@@ -171,7 +178,7 @@ export interface AdminActivityLog {
   targetType: string | null;
   targetId: string | null;
   description: string | null;
-  details: any;
+  details: Record<string, unknown>;
   ipAddress: string | null;
   createdAt: string;
   admin?: User;
@@ -345,7 +352,7 @@ export interface Post {
   isFlagged: boolean;
   createdAt: string;
   author?: User;
-  media?: any[];
+  media?: Array<{ id: string; url: string; type: string }>;
   _count?: {
     likes: number;
     comments: number;

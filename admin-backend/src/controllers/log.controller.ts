@@ -30,7 +30,7 @@ export class LogController {
       res.json(result);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Validation failed", details: error.errors });
+        res.status(400).json({ error: "Validation failed", details: error.issues });
       } else {
         res.status(500).json({ error: error.message });
       }
@@ -60,7 +60,7 @@ export class LogController {
       res.json(stats);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Validation failed", details: error.errors });
+        res.status(400).json({ error: "Validation failed", details: error.issues });
       } else {
         res.status(500).json({ error: error.message });
       }

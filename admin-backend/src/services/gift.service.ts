@@ -80,7 +80,7 @@ class GiftService {
       await tx.adminActivityLog.create({
         data: {
           action: "CREATE_GIFT",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             giftId: created.id,
             name: created.name,
@@ -124,7 +124,7 @@ class GiftService {
       await tx.adminActivityLog.create({
         data: {
           action: "UPDATE_GIFT",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             giftId: id,
             changes: data,
@@ -152,7 +152,7 @@ class GiftService {
       await tx.adminActivityLog.create({
         data: {
           action: "DELETE_GIFT",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             giftId: id,
             name: gift.name,

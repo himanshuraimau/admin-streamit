@@ -198,7 +198,7 @@ class ReportService {
       await tx.adminActivityLog.create({
         data: {
           action: "REPORT_REVIEWED",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: report.reportedUserId,
           details: {
             reportId: id,
@@ -239,7 +239,7 @@ class ReportService {
       await tx.adminActivityLog.create({
         data: {
           action: "REPORT_REVIEWED",
-          adminUserId: adminId,
+          adminId: adminId,
           affectedUserId: report.reportedUserId,
           details: {
             reportId: id,
@@ -278,7 +278,7 @@ class ReportService {
       await tx.adminActivityLog.create({
         data: {
           action: "REPORT_DISMISSED",
-          adminUserId: adminId,
+          adminId: adminId,
           details: {
             reportId: id,
             reason,

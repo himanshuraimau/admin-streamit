@@ -104,7 +104,7 @@ export const createDiscountCode = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -148,7 +148,7 @@ export const updateDiscountCode = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
