@@ -1,4 +1,4 @@
-import { prisma } from "../lib/db.js";
+import { prisma } from "../lib/db.ts";
 
 class DiscountService {
   // Get all discount codes with pagination

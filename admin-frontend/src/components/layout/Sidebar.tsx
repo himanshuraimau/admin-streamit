@@ -10,6 +10,7 @@ import {
   FileText,
   Flag,
   Activity,
+  BarChart3,
 } from "lucide-react";
 
 const navigation = [
@@ -22,6 +23,7 @@ const navigation = [
   { name: "Content", href: "/content", icon: FileText },
   { name: "Reports", href: "/reports", icon: Flag },
   { name: "Activity Logs", href: "/logs", icon: Activity },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
 
 export function Sidebar() {

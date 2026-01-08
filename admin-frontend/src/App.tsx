@@ -1,13 +1,29 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { UsersPage } from "./pages/users/UsersPage";
 import { UserDetailPage } from "./pages/users/UserDetailPage";
 import { CreatorApplicationsPage } from "./pages/creators/ApplicationsPage";
+import PaymentsPage from "./pages/payments/PaymentsPage";
+import GiftsPage from "./pages/gifts/GiftsPage";
+import DiscountCodesPage from "./pages/discounts/DiscountCodesPage";
+import ContentModerationPage from "./pages/content/ContentModerationPage";
+import ReportsPage from "./pages/reports/ReportsPage";
+import ActivityLogsPage from "./pages/logs/ActivityLogsPage";
+import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Simple auth check (TODO: Implement proper auth with Better Auth)
 const isAuthenticated = () => {
@@ -25,8 +41,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Toaster position="top-right" richColors closeButton />
+        <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           
@@ -41,17 +59,17 @@ function App() {
             <Route path="/users" element={<UsersPage />} />
             <Route path="/users/:id" element={<UserDetailPage />} />
             <Route path="/creators" element={<CreatorApplicationsPage />} />
-            
-            {/* Placeholder routes */}
-            <Route path="/payments" element={<div>Payments (Coming Soon)</div>} />
-            <Route path="/gifts" element={<div>Gifts (Coming Soon)</div>} />
-            <Route path="/discounts" element={<div>Discounts (Coming Soon)</div>} />
-            <Route path="/content" element={<div>Content (Coming Soon)</div>} />
-            <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
-            <Route path="/logs" element={<div>Logs (Coming Soon)</div>} />
+            <Route path="/payments" element={<PaymentsPage />} />
+            <Route path="/gifts" element={<GiftsPage />} />
+            <Route path="/discounts" element={<DiscountCodesPage />} />
+            <Route path="/content" element={<ContentModerationPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/logs" element={<ActivityLogsPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
+    </ErrorBoundary>
     </QueryClientProvider>
   );
 }
