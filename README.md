@@ -223,19 +223,84 @@ VITE_API_URL=http://localhost:4000
 - CORS configuration
 - Input validation with Zod
 
-## 🚢 Deployment
+## 📚 Documentation
 
-### Backend Deployment
+Complete documentation available in the [`docs/`](docs/) folder.
 
-1. Set environment variables
-2. Run database migrations: `bun db:migrate:deploy`
-3. Build and start: `bun start`
+### Quick Links
 
-### Frontend Deployment
+**Backend:**
+- [Overview](docs/backend/README.md) - Architecture, features, and setup
+- [Database Schema](docs/backend/DATABASE.md) - Complete database documentation
+- [API Reference](docs/backend/API.md) - All endpoints and examples
 
-1. Set production API URL in `.env`
-2. Build: `bun build`
-3. Deploy `dist` folder to your hosting service
+**Frontend:**
+- [Overview](docs/frontend/README.md) - Architecture, features, and setup
+- [Components](docs/frontend/COMPONENTS.md) - UI component guide
+- [State Management](docs/frontend/STATE.md) - Data fetching patterns
+
+## 🚀 Getting Started
+
+### Backend
+
+```bash
+cd admin-backend
+bun install
+bun db:migrate
+bun db:seed
+bun dev
+```
+
+### Frontend
+
+```bash
+cd admin-frontend
+bun install
+bun dev
+```
+
+See [Documentation](docs/README.md) for detailed guides.
+
+## 🚀 Production Deployment (AWS EC2)
+
+Deploy to AWS EC2 with Neon PostgreSQL:
+
+**Setup:**
+- Frontend: `app.vidrelay.site`
+- Backend: `api.vidrelay.site`
+- Database: Neon PostgreSQL (cloud)
+
+**Quick Steps:**
+1. Setup Neon database
+2. Launch EC2 instance (t3.medium)
+3. Configure DNS (A records)
+4. Deploy with Docker
+5. Setup Nginx reverse proxy
+6. Enable SSL with Certbot
+
+📚 **[Complete Deployment Guide](DEPLOY.md)** - Step-by-step AWS EC2 deployment  
+✅ **[Deployment Checklist](DEPLOY-CHECKLIST.md)** - Quick reference checklist
+
+## 🐳 Docker Deployment
+
+Deploy with Docker using Neon PostgreSQL:
+
+```bash
+# Setup environment
+cp .env.example .env
+# Edit .env with your Neon DATABASE_URL and JWT_SECRET
+
+# Build and start
+docker-compose up -d
+
+# Run migrations
+docker-compose exec backend bunx prisma migrate deploy
+
+# Seed admin user
+docker-compose exec backend bun run prisma/seed.ts
+```
+
+See [DOCKER.md](DOCKER.md) for complete Docker deployment guide.
 
 ## 📄 License
 
