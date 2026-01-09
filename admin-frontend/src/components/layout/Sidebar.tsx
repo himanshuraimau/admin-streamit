@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
@@ -12,6 +11,18 @@ import {
   Activity,
   BarChart3,
 } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@/components/ui/sidebar";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -26,37 +37,48 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
 
-export function Sidebar() {
+export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-gray-50/40">
-      {/* Logo */}
-      <div className="flex h-16 items-center border-b px-6">
-        <h1 className="text-xl font-bold">StreamIt Admin</h1>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => {
-          const isActive = location.pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-700 hover:bg-gray-100"
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <div className="flex h-12 items-center px-4">
+          <h1 className="text-xl font-bold truncate group-data-[collapsible=icon]:hidden">
+            StreamIt Admin
+          </h1>
+          <span className="text-xl font-bold hidden group-data-[collapsible=icon]:block">
+            S
+          </span>
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigation.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.name}
+                    >
+                      <Link to={item.href}>
+                        <item.icon />
+                        <span>{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarRail />
+    </Sidebar>
   );
 }

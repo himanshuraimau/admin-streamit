@@ -14,13 +14,13 @@ export class AnalyticsController {
   static async getRevenueAnalytics(req: Request, res: Response) {
     try {
       const params = dateRangeSchema.parse(req.query);
-      const analytics = await analyticsService.getRevenueAnalytics(params);
-      res.json(analytics);
+      const result = await analyticsService.getRevenueAnalytics(params);
+      res.json(result);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Validation failed", details: error.issues });
+        res.status(400).json({ success: false, error: "Validation failed", details: error.issues });
       } else {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
       }
     }
   }
@@ -29,13 +29,13 @@ export class AnalyticsController {
   static async getUserAnalytics(req: Request, res: Response) {
     try {
       const params = dateRangeSchema.parse(req.query);
-      const analytics = await analyticsService.getUserAnalytics(params);
-      res.json(analytics);
+      const result = await analyticsService.getUserAnalytics(params);
+      res.json(result);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Validation failed", details: error.issues });
+        res.status(400).json({ success: false, error: "Validation failed", details: error.issues });
       } else {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
       }
     }
   }
@@ -44,13 +44,13 @@ export class AnalyticsController {
   static async getContentAnalytics(req: Request, res: Response) {
     try {
       const params = dateRangeSchema.parse(req.query);
-      const analytics = await analyticsService.getContentAnalytics(params);
-      res.json(analytics);
+      const result = await analyticsService.getContentAnalytics(params);
+      res.json(result);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Validation failed", details: error.issues });
+        res.status(400).json({ success: false, error: "Validation failed", details: error.issues });
       } else {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
       }
     }
   }
@@ -59,13 +59,13 @@ export class AnalyticsController {
   static async getGiftAnalytics(req: Request, res: Response) {
     try {
       const params = dateRangeSchema.parse(req.query);
-      const analytics = await analyticsService.getGiftAnalytics(params);
-      res.json(analytics);
+      const result = await analyticsService.getGiftAnalytics(params);
+      res.json(result);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Validation failed", details: error.issues });
+        res.status(400).json({ success: false, error: "Validation failed", details: error.issues });
       } else {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
       }
     }
   }
@@ -73,10 +73,10 @@ export class AnalyticsController {
   // GET /api/admin/analytics/overview - Get platform overview
   static async getPlatformOverview(req: Request, res: Response) {
     try {
-      const overview = await analyticsService.getPlatformOverview();
-      res.json(overview);
+      const result = await analyticsService.getPlatformOverview();
+      res.json(result);
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, error: error.message });
     }
   }
 }

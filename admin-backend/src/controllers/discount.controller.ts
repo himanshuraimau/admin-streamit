@@ -9,21 +9,21 @@ const createDiscountSchema = z.object({
     .min(3, "Code must be at least 3 characters")
     .max(20, "Code must be at most 20 characters")
     .regex(/^[A-Z0-9_]+$/, "Code must contain only uppercase letters, numbers, and underscores"),
-  discountType: z.enum(["PERCENTAGE", "FIXED"]),
-  discountValue: z.number().min(1, "Discount value must be at least 1"),
+  type: z.enum(["PERCENTAGE", "FIXED"]),
+  value: z.number().min(1, "Discount value must be at least 1"),
   maxRedemptions: z.number().min(1).optional(),
-  minPurchaseAmount: z.number().min(0).optional(),
-  expiresAt: z.iso.datetime().optional(),
-  description: z.string().optional(),
+  startsAt: z.string().optional(),
+  expiresAt: z.string().optional(),
+  isActive: z.boolean().optional(),
 });
 
 const updateDiscountSchema = z.object({
-  discountValue: z.number().min(1).optional(),
+  type: z.enum(["PERCENTAGE", "FIXED"]).optional(),
+  value: z.number().min(1).optional(),
   maxRedemptions: z.number().min(1).optional(),
-  minPurchaseAmount: z.number().min(0).optional(),
-  expiresAt: z.string().datetime().optional(),
+  startsAt: z.string().optional(),
+  expiresAt: z.string().optional(),
   isActive: z.boolean().optional(),
-  description: z.string().optional(),
 });
 
 // Get all discount codes
@@ -91,11 +91,18 @@ export const getDiscountCodeById = async (req: Request, res: Response) => {
 export const createDiscountCode = async (req: Request, res: Response) => {
   try {
     const data = createDiscountSchema.parse(req.body);
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
 
     const discountData: any = {
-      ...data,
+      code: data.code,
+      discountType: data.type,
+      discountValue: data.value,
+      maxRedemptions: data.maxRedemptions,
+      startsAt: data.startsAt ? new Date(data.startsAt) : undefined,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : undefined,
+      isActive: data.isActive ?? true,
+      codeType: "PROMOTIONAL",
+      createdBy: adminId,
     };
 
     const code = await discountService.createDiscountCode(adminId, discountData);
@@ -141,7 +148,7 @@ export const updateDiscountCode = async (req: Request, res: Response) => {
       });
     }
     const data = updateDiscountSchema.parse(req.body);
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
 
     const updateData: any = {
       ...data,
@@ -190,7 +197,7 @@ export const deleteDiscountCode = async (req: Request, res: Response) => {
         message: "Discount code ID is required",
       });
     }
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
 
     await discountService.deleteDiscountCode(id, adminId);
 

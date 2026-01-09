@@ -63,7 +63,7 @@ export default function PaymentsPage() {
     columnHelper.accessor("amount", {
       header: "Amount",
       cell: (info) => (
-        <span className="font-semibold">${info.getValue().toFixed(2)}</span>
+        <span className="font-semibold">${(info.getValue() || 0).toFixed(2)}</span>
       ),
     }),
     columnHelper.accessor("status", {
@@ -130,21 +130,21 @@ export default function PaymentsPage() {
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Total Revenue</p>
             <p className="text-2xl font-bold">
-              ${stats.totalRevenue.toFixed(2)}
+              ${(stats.totalRevenue || 0).toFixed(2)}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Total Payments</p>
-            <p className="text-2xl font-bold">{stats.totalPayments}</p>
+            <p className="text-2xl font-bold">{stats.totalPayments || 0}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Completed</p>
-            <p className="text-2xl font-bold">{stats.completedPayments}</p>
+            <p className="text-2xl font-bold">{stats.completedPayments || 0}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">Total Refunded</p>
             <p className="text-2xl font-bold text-red-600">
-              ${stats.totalRefunded.toFixed(2)}
+              ${(stats.totalRefunded || 0).toFixed(2)}
             </p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function PaymentsPage() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Refund Payment</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Refund ${refundModal.payment.amount.toFixed(2)} to{" "}
+              Refund ${(refundModal.payment.amount || 0).toFixed(2)} to{" "}
               {(refundModal.payment.buyer as { name: string }).name}?
             </p>
             <div className="mb-4">

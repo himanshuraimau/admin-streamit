@@ -147,13 +147,13 @@ export default function GiftsPage() {
   ];
 
   const giftsTable = useReactTable({
-    data: giftsData?.data.gifts || [],
+    data: giftsData?.data.data || [],
     columns: giftColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   const transactionsTable = useReactTable({
-    data: transactionsData?.data.transactions || [],
+    data: transactionsData?.data.data || [],
     columns: transactionColumns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -195,21 +195,19 @@ export default function GiftsPage() {
           <div className="flex">
             <button
               onClick={() => setActiveTab("gifts")}
-              className={`px-6 py-3 font-medium ${
-                activeTab === "gifts"
+              className={`px-6 py-3 font-medium ${activeTab === "gifts"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600"
-              }`}
+                }`}
             >
               Gifts
             </button>
             <button
               onClick={() => setActiveTab("transactions")}
-              className={`px-6 py-3 font-medium ${
-                activeTab === "transactions"
+              className={`px-6 py-3 font-medium ${activeTab === "transactions"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600"
-              }`}
+                }`}
             >
               Transactions
             </button>
@@ -361,8 +359,8 @@ export default function GiftsPage() {
                 {createMutation.isPending || updateMutation.isPending
                   ? "Saving..."
                   : editModal.gift
-                  ? "Update"
-                  : "Create"}
+                    ? "Update"
+                    : "Create"}
               </button>
             </div>
           </div>

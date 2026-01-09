@@ -80,7 +80,7 @@ export class ReportController {
                     message: "Report ID is required",
                 });
             }
-            const adminId = req.user!.id;
+            const adminId = req.user!.userId;
 
             const report = await reportService.reviewReport(id, adminId);
             res.json(report);
@@ -103,7 +103,7 @@ export class ReportController {
                     message: "Report ID is required",
                 });
             }
-            const adminId = req.user!.id;
+            const adminId = req.user!.userId;
             const data = resolveReportSchema.parse(req.body);
 
             const report = await reportService.resolveReport(id, adminId, data);
@@ -129,7 +129,7 @@ export class ReportController {
                     message: "Report ID is required",
                 });
             }
-            const adminId = req.user!.id;
+            const adminId = req.user!.userId;
             const { reason } = dismissReportSchema.parse(req.body);
 
             const report = await reportService.dismissReport(id, adminId, reason);

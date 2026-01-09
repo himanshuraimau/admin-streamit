@@ -90,7 +90,7 @@ export const refundPayment = async (req: Request, res: Response) => {
       });
     }
     const data = refundSchema.parse(req.body);
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
 
     const refunded = await paymentService.refundPayment(id, adminId, data);
 

@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { auth } from "./src/lib/auth.js";
+import authRoutes from "./src/routes/auth.route.js";
 import adminRoutes from "./src/routes/admin.route.js";
-import type { Request,Response } from "express";
+import type { Request, Response } from "express";
 
 const app = express();
 
@@ -38,8 +38,8 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// Better Auth routes
-app.use("/api/auth", auth.handler);
+// Auth routes (JWT-based)
+app.use("/api/auth", authRoutes);
 
 // Admin routes
 app.use("/api/admin", adminRoutes);

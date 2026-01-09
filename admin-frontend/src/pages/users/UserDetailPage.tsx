@@ -39,7 +39,8 @@ export function UserDetailPage() {
       setIsSuspending(true);
       await adminApi.suspendUser(id!, {
         reason: suspendReason,
-        duration: "PERMANENT",
+        duration: 0,
+
       });
       alert("User suspended successfully");
       loadUser();

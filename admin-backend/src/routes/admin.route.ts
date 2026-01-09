@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAdmin } from "../middleware/auth.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
 import * as adminController from "../controllers/admin.controller.js";
 import * as paymentController from "../controllers/payment.controller.js";
 import * as giftController from "../controllers/gift.controller.js";
@@ -11,7 +11,8 @@ import { AnalyticsController } from "../controllers/analytics.controller.js";
 
 const router = Router();
 
-// Apply admin middleware to all routes
+// Apply auth middleware first, then admin check to all routes
+router.use(requireAuth);
 router.use(requireAdmin);
 
 // Dashboard routes

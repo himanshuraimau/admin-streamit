@@ -1,23 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import { adminApi } from "@/lib/api";
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
+import { AreaChartComponent } from "@/components/charts/AreaChartComponent";
+import { PieChartComponent } from "@/components/charts/PieChartComponent";
+import { BarChartComponent } from "@/components/charts/BarChartComponent";
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({
@@ -25,12 +12,12 @@ export default function AnalyticsPage() {
     endDate: "",
   });
 
-  const { data: overviewData } = useQuery({
+  const { data: overviewData, isLoading: overviewLoading, error: overviewError } = useQuery({
     queryKey: ["platform-overview"],
     queryFn: () => adminApi.getPlatformOverview(),
   });
 
-  const { data: revenueData } = useQuery({
+  const { data: revenueData, isLoading: revenueLoading, error: revenueError } = useQuery({
     queryKey: ["revenue-analytics", dateRange],
     queryFn: () =>
       adminApi.getRevenueAnalytics({
@@ -39,7 +26,7 @@ export default function AnalyticsPage() {
       }),
   });
 
-  const { data: userData } = useQuery({
+  const { data: userData, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ["user-analytics", dateRange],
     queryFn: () =>
       adminApi.getUserAnalytics({
@@ -48,7 +35,7 @@ export default function AnalyticsPage() {
       }),
   });
 
-  const { data: contentData } = useQuery({
+  const { data: contentData, isLoading: contentLoading, error: contentError } = useQuery({
     queryKey: ["content-analytics", dateRange],
     queryFn: () =>
       adminApi.getContentAnalytics({
@@ -57,7 +44,7 @@ export default function AnalyticsPage() {
       }),
   });
 
-  const { data: giftData } = useQuery({
+  const { data: giftData, isLoading: giftLoading, error: giftError } = useQuery({
     queryKey: ["gift-analytics", dateRange],
     queryFn: () =>
       adminApi.getGiftAnalytics({
@@ -66,11 +53,11 @@ export default function AnalyticsPage() {
       }),
   });
 
-  const overview = overviewData?.data;
-  const revenue = revenueData?.data;
-  const users = userData?.data;
-  const content = contentData?.data;
-  const gifts = giftData?.data;
+  const overview = overviewData?.data?.data;
+  const revenue = revenueData?.data?.data;
+  const users = userData?.data?.data;
+  const content = contentData?.data?.data;
+  const gifts = giftData?.data?.data;
 
   return (
     <div className="space-y-6">
@@ -105,7 +92,15 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Platform Overview */}
-      {overview && (
+      {overviewLoading ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-gray-400">Loading platform overview...</div>
+        </div>
+      ) : overviewError ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-red-400">Error loading platform overview</div>
+        </div>
+      ) : overview && (
         <div>
           <h2 className="text-xl font-bold mb-4">Platform Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -124,7 +119,7 @@ export default function AnalyticsPage() {
             <div className="bg-white p-4 rounded-lg shadow">
               <p className="text-sm text-gray-600">Total Revenue</p>
               <p className="text-2xl font-bold text-green-600">
-                ${overview.totalRevenue.toFixed(2)}
+                ${(overview.totalRevenue || 0).toFixed(2)}
               </p>
             </div>
           </div>
@@ -132,13 +127,21 @@ export default function AnalyticsPage() {
       )}
 
       {/* Revenue Analytics */}
-      {revenue && (
+      {revenueLoading ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-gray-400">Loading revenue analytics...</div>
+        </div>
+      ) : revenueError ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-red-400">Error loading revenue analytics</div>
+        </div>
+      ) : revenue && (
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-bold mb-4">Revenue Analytics</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">Total Revenue</p>
-              <p className="text-xl font-bold">${revenue.totalRevenue.toFixed(2)}</p>
+              <p className="text-xl font-bold">${(revenue.totalRevenue || 0).toFixed(2)}</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">Total Payments</p>
@@ -146,24 +149,44 @@ export default function AnalyticsPage() {
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">Avg Transaction</p>
-              <p className="text-xl font-bold">${revenue.averageTransaction.toFixed(2)}</p>
+              <p className="text-xl font-bold">${(revenue.averageTransaction || 0).toFixed(2)}</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={revenue.dailyRevenue}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#3b82f6" name="Revenue ($)" />
-            </LineChart>
-          </ResponsiveContainer>
+          {revenueLoading ? (
+            <div className="h-[300px] flex items-center justify-center text-gray-400">
+              Loading revenue data...
+            </div>
+          ) : revenueError ? (
+            <div className="h-[300px] flex items-center justify-center text-red-400">
+              Error loading revenue data
+            </div>
+          ) : revenue?.dailyRevenue && revenue.dailyRevenue.length > 0 ? (
+            <AreaChartComponent
+              data={revenue.dailyRevenue}
+              dataKey="revenue"
+              xAxisKey="date"
+              fill="#3b82f6"
+              stroke="#2563eb"
+              height={300}
+            />
+          ) : (
+            <div className="h-[300px] flex items-center justify-center text-gray-400">
+              No revenue data available
+            </div>
+          )}
         </div>
       )}
 
       {/* User Analytics */}
-      {users && (
+      {userLoading ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-gray-400">Loading user analytics...</div>
+        </div>
+      ) : userError ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-red-400">Error loading user analytics</div>
+        </div>
+      ) : users && (
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-bold mb-4">User Analytics</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -183,44 +206,68 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold mb-2">Daily New Users</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={users.dailySignups}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
+              {userLoading ? (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  Loading...
+                </div>
+              ) : userError ? (
+                <div className="h-[250px] flex items-center justify-center text-red-400">
+                  Error loading data
+                </div>
+              ) : users?.dailySignups && users.dailySignups.length > 0 ? (
+                <BarChartComponent
+                  data={users.dailySignups.map((item: any) => ({
+                    date: item.date,
+                    signups: item.signups || item.count || 0
+                  }))}
+                  bars={[{ dataKey: "signups", fill: "#3b82f6", name: "New Signups" }]}
+                  xAxisKey="date"
+                  height={250}
+                />
+              ) : (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  No data available
+                </div>
+              )}
             </div>
             <div>
               <h3 className="font-semibold mb-2">Users by Role</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={users.usersByRole}
-                    dataKey="count"
-                    nameKey="role"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label
-                  >
-                    {users.usersByRole.map((_entry: { role: string; count: number }, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {userLoading ? (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  Loading...
+                </div>
+              ) : userError ? (
+                <div className="h-[250px] flex items-center justify-center text-red-400">
+                  Error loading data
+                </div>
+              ) : users?.usersByRole && users.usersByRole.length > 0 ? (
+                <PieChartComponent
+                  data={users.usersByRole.map((item: any) => ({
+                    name: item.role,
+                    value: item.count
+                  }))}
+                  height={250}
+                />
+              ) : (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  No data available
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
       {/* Content Analytics */}
-      {content && (
+      {contentLoading ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-gray-400">Loading content analytics...</div>
+        </div>
+      ) : contentError ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-red-400">Error loading content analytics</div>
+        </div>
+      ) : content && (
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-bold mb-4">Content Analytics</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -244,44 +291,68 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold mb-2">Daily Posts</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={content.dailyPosts}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#10b981" />
-                </BarChart>
-              </ResponsiveContainer>
+              {contentLoading ? (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  Loading...
+                </div>
+              ) : contentError ? (
+                <div className="h-[250px] flex items-center justify-center text-red-400">
+                  Error loading data
+                </div>
+              ) : content?.dailyPosts && content.dailyPosts.length > 0 ? (
+                <BarChartComponent
+                  data={content.dailyPosts.map((item: any) => ({
+                    date: item.date,
+                    posts: item.posts || item.count || 0
+                  }))}
+                  bars={[{ dataKey: "posts", fill: "#10b981", name: "Posts" }]}
+                  xAxisKey="date"
+                  height={250}
+                />
+              ) : (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  No data available
+                </div>
+              )}
             </div>
             <div>
               <h3 className="font-semibold mb-2">Posts by Type</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={content.postsByType}
-                    dataKey="count"
-                    nameKey="type"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label
-                  >
-                    {content.postsByType.map((_entry: { type: string; count: number }, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {contentLoading ? (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  Loading...
+                </div>
+              ) : contentError ? (
+                <div className="h-[250px] flex items-center justify-center text-red-400">
+                  Error loading data
+                </div>
+              ) : content?.postsByType && content.postsByType.length > 0 ? (
+                <PieChartComponent
+                  data={content.postsByType.map((item: any) => ({
+                    name: item.type,
+                    value: item.count
+                  }))}
+                  height={250}
+                />
+              ) : (
+                <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  No data available
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
       {/* Gift Analytics */}
-      {gifts && (
+      {giftLoading ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-gray-400">Loading gift analytics...</div>
+        </div>
+      ) : giftError ? (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="text-center text-red-400">Error loading gift analytics</div>
+        </div>
+      ) : gifts && (
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-bold mb-4">Gift Analytics</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -292,7 +363,7 @@ export default function AnalyticsPage() {
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">Total Gift Revenue</p>
               <p className="text-xl font-bold text-green-600">
-                ${gifts.totalGiftRevenue.toFixed(2)}
+                ${(gifts.totalGiftRevenue || 0).toFixed(2)}
               </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
@@ -313,7 +384,7 @@ export default function AnalyticsPage() {
                     <p className="text-sm text-gray-600">Sent {gift.count} times</p>
                   </div>
                   <p className="text-lg font-bold text-green-600">
-                    ${gift.totalRevenue.toFixed(2)}
+                    ${(gift.totalRevenue || 0).toFixed(2)}
                   </p>
                 </div>
               ))}

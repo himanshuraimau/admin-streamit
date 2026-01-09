@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthToken, clearAuth } from "./auth";
 import type {
   UserFilterParams,
   SuspendUserFormData,
@@ -22,16 +23,18 @@ import type {
 // Create axios instance with default config
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000",
-  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor
+// Request interceptor - Add JWT token to all requests
 api.interceptors.request.use(
   (config) => {
-    // Add any auth tokens or custom headers here if needed
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -39,7 +42,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Response interceptor - Handle auth errors
 api.interceptors.response.use(
   (response) => {
     return response;
@@ -47,8 +50,11 @@ api.interceptors.response.use(
   (error) => {
     // Handle errors globally
     if (error.response?.status === 401) {
-      // Redirect to login if unauthorized
-      window.location.href = "/login";
+      // Clear auth and redirect to login if unauthorized
+      clearAuth();
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
@@ -56,6 +62,13 @@ api.interceptors.response.use(
 
 // API helper functions
 export const adminApi = {
+  // Authentication
+  login: (email: string, password: string) =>
+    api.post("/api/auth/login", { email, password }),
+  me: () => api.get("/api/auth/me"),
+  register: (data: { email: string; username: string; password: string; name?: string; role?: string }) =>
+    api.post("/api/auth/register", data),
+
   // Dashboard
   getDashboardStats: () => api.get("/api/admin/dashboard/stats"),
 
@@ -145,3 +158,5 @@ export const adminApi = {
 };
 
 export default api;
+
+

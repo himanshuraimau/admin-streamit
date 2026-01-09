@@ -1,12 +1,27 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api";
 import type { DashboardStats } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 import { Users, UserCheck, Radio, DollarSign, AlertTriangle, UserX } from "lucide-react";
+import { LineChartComponent } from "@/components/charts/LineChartComponent";
+import { AreaChartComponent } from "@/components/charts/AreaChartComponent";
+import { PieChartComponent } from "@/components/charts/PieChartComponent";
 
 export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch analytics data
+  const { data: userAnalytics } = useQuery({
+    queryKey: ['user-analytics'],
+    queryFn: () => adminApi.getUserAnalytics(),
+  });
+
+  const { data: revenueAnalytics } = useQuery({
+    queryKey: ['revenue-analytics'],
+    queryFn: () => adminApi.getRevenueAnalytics(),
+  });
 
   useEffect(() => {
     loadStats();
@@ -94,6 +109,90 @@ export function DashboardPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* User Growth Chart */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">User Growth (Last 30 Days)</h2>
+          {userAnalytics?.data?.dailySignups ? (
+            <LineChartComponent
+              data={userAnalytics.data.dailySignups}
+              lines={[
+                { dataKey: "signups", stroke: "#3b82f6", name: "New Signups" }
+              ]}
+              xAxisKey="date"
+              height={250}
+            />
+          ) : (
+            <div className="h-[250px] flex items-center justify-center text-gray-400">
+              Loading chart data...
+            </div>
+          )}
+        </div>
+
+        {/* Revenue Chart */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">Revenue Trend (Last 30 Days)</h2>
+          {revenueAnalytics?.data?.dailyRevenue ? (
+            <AreaChartComponent
+              data={revenueAnalytics.data.dailyRevenue}
+              dataKey="revenue"
+              xAxisKey="date"
+              fill="#10b981"
+              stroke="#059669"
+              height={250}
+            />
+          ) : (
+            <div className="h-[250px] flex items-center justify-center text-gray-400">
+              Loading chart data...
+            </div>
+          )}
+        </div>
+
+        {/* User Distribution Chart */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">User Distribution by Role</h2>
+          {userAnalytics?.data?.usersByRole ? (
+            <PieChartComponent
+              data={userAnalytics.data.usersByRole.map((item: any) => ({
+                name: item.role,
+                value: item.count
+              }))}
+              height={250}
+            />
+          ) : (
+            <div className="h-[250px] flex items-center justify-center text-gray-400">
+              Loading chart data...
+            </div>
+          )}
+        </div>
+
+        {/* Quick Stats */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Total Users</span>
+              <span className="text-2xl font-bold">{stats?.totalUsers.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Suspended Users</span>
+              <span className="text-2xl font-bold text-red-600">{userAnalytics?.data?.suspendedUsers || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Total Revenue</span>
+              <span className="text-2xl font-bold text-green-600">
+                ${((revenueAnalytics?.data?.totalRevenue || 0) / 100).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Transactions</span>
+              <span className="text-2xl font-bold">{revenueAnalytics?.data?.totalTransactions || 0}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-8 text-xs text-gray-500">

@@ -5,22 +5,22 @@ import { z } from "zod";
 // Validation schemas
 const createGiftSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
+  imageUrl: z.string().url("Valid image URL required"),
+  animationUrl: z.string().url().optional(),
   coinPrice: z.number().min(1, "Coin price must be at least 1"),
-  imageUrl: z.url("Valid image URL required"),
-  animationUrl: z.url().optional(),
-  isActive: z.boolean().optional(),
   sortOrder: z.number().optional(),
+  isActive: z.boolean().optional(),
+  description: z.string().optional(),
 });
 
 const updateGiftSchema = z.object({
   name: z.string().min(1).optional(),
-  description: z.string().optional(),
+  imageUrl: z.string().url().optional(),
+  animationUrl: z.string().url().optional(),
   coinPrice: z.number().min(1).optional(),
-  imageUrl: z.url().optional(),
-  animationUrl: z.url().optional(),
-  isActive: z.boolean().optional(),
   sortOrder: z.number().optional(),
+  isActive: z.boolean().optional(),
+  description: z.string().optional(),
 });
 
 // Get all gifts
@@ -86,7 +86,7 @@ export const getGiftById = async (req: Request, res: Response) => {
 export const createGift = async (req: Request, res: Response) => {
   try {
     const data = createGiftSchema.parse(req.body);
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
 
     const gift = await giftService.createGift(adminId, data);
 
@@ -117,7 +117,7 @@ export const updateGift = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const data = updateGiftSchema.parse(req.body);
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
     if(!id) {
       return res.status(400).json({
         success: false,
@@ -166,7 +166,7 @@ export const deleteGift = async (req: Request, res: Response) => {
         message: "Gift ID is required",
       });
     }
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
 
     await giftService.deleteGift(id, adminId);
 

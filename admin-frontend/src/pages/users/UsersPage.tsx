@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { adminApi } from "@/lib/api";
-import { User } from "@/types";
+import type { User } from "@/types";
 import { formatDateTime } from "@/lib/utils";
 
 export function UsersPage() {

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { auth } from "../lib/auth.js";
+import { verifyToken } from "../lib/jwt.js";
 import { prisma } from "../lib/db.js";
 
 // Extend Express Request type to include user
@@ -7,9 +7,8 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: string;
+        userId: string;
         email: string;
-        name: string;
         role: string;
       };
     }
@@ -17,7 +16,7 @@ declare global {
 }
 
 /**
- * Middleware to verify the user is authenticated
+ * Middleware to verify the user is authenticated via JWT
  */
 export async function requireAuth(
   req: Request,
@@ -25,23 +24,37 @@ export async function requireAuth(
   next: NextFunction
 ): Promise<void> {
   try {
-    const session = await auth.api.getSession({ headers: req.headers });
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
 
-    if (!session || !session.user) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.status(401).json({
         success: false,
-        error: "Unauthorized - Please login",
+        message: "Unauthorized - No token provided",
       });
       return;
     }
 
-    // Fetch full user details from database
+    const token = authHeader.substring(7); // Remove "Bearer " prefix
+
+    // Verify token
+    let decoded;
+    try {
+      decoded = verifyToken(token);
+    } catch (error) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized - Invalid or expired token",
+      });
+      return;
+    }
+
+    // Fetch user from database to ensure they still exist and aren't suspended
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: decoded.userId },
       select: {
         id: true,
         email: true,
-        name: true,
         role: true,
         isSuspended: true,
       },
@@ -50,7 +63,7 @@ export async function requireAuth(
     if (!user) {
       res.status(401).json({
         success: false,
-        error: "User not found",
+        message: "User not found",
       });
       return;
     }
@@ -58,16 +71,15 @@ export async function requireAuth(
     if (user.isSuspended) {
       res.status(403).json({
         success: false,
-        error: "Account suspended",
+        message: "Account suspended",
       });
       return;
     }
 
     // Attach user to request
     req.user = {
-      id: user.id,
+      userId: user.id,
       email: user.email,
-      name: user.name,
       role: user.role,
     };
 
@@ -76,7 +88,7 @@ export async function requireAuth(
     console.error("Auth middleware error:", error);
     res.status(500).json({
       success: false,
-      error: "Internal server error",
+      message: "Internal server error",
     });
   }
 }
@@ -84,71 +96,57 @@ export async function requireAuth(
 /**
  * Middleware to verify the user has admin role (ADMIN or SUPER_ADMIN)
  */
-export async function requireAdmin(
+export function requireAdmin(
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> {
-  try {
-    // First check if user is authenticated
-    await requireAuth(req, res, () => {});
-
-    if (!req.user) {
-      // requireAuth already sent response
-      return;
-    }
-
-    // Check if user has admin role
-    if (req.user.role !== "ADMIN" && req.user.role !== "SUPER_ADMIN") {
-      res.status(403).json({
-        success: false,
-        error: "Forbidden - Admin access required",
-      });
-      return;
-    }
-
-    next();
-  } catch (error) {
-    console.error("Admin middleware error:", error);
-    res.status(500).json({
+): void {
+  // requireAuth must be called before this middleware
+  if (!req.user) {
+    res.status(401).json({
       success: false,
-      error: "Internal server error",
+      message: "Unauthorized - Please login",
     });
+    return;
   }
+
+  // Check if user has admin role
+  if (req.user.role !== "ADMIN" && req.user.role !== "SUPER_ADMIN") {
+    res.status(403).json({
+      success: false,
+      message: "Forbidden - Admin access required",
+    });
+    return;
+  }
+
+  next();
 }
 
 /**
  * Middleware to verify the user has super admin role
  */
-export async function requireSuperAdmin(
+export function requireSuperAdmin(
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> {
-  try {
-    // First check if user is authenticated
-    await requireAuth(req, res, () => {});
-
-    if (!req.user) {
-      // requireAuth already sent response
-      return;
-    }
-
-    // Check if user has super admin role
-    if (req.user.role !== "SUPER_ADMIN") {
-      res.status(403).json({
-        success: false,
-        error: "Forbidden - Super admin access required",
-      });
-      return;
-    }
-
-    next();
-  } catch (error) {
-    console.error("Super admin middleware error:", error);
-    res.status(500).json({
+): void {
+  // requireAuth must be called before this middleware
+  if (!req.user) {
+    res.status(401).json({
       success: false,
-      error: "Internal server error",
+      message: "Unauthorized - Please login",
     });
+    return;
   }
+
+  // Check if user has super admin role
+  if (req.user.role !== "SUPER_ADMIN") {
+    res.status(403).json({
+      success: false,
+      message: "Forbidden - Super admin access required",
+    });
+    return;
+  }
+
+  next();
 }

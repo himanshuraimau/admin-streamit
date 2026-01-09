@@ -15,6 +15,7 @@ import ContentModerationPage from "./pages/content/ContentModerationPage";
 import ReportsPage from "./pages/reports/ReportsPage";
 import ActivityLogsPage from "./pages/logs/ActivityLogsPage";
 import AnalyticsPage from "./pages/analytics/AnalyticsPage";
+import { isAuthenticated } from "./lib/auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,13 +25,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Simple auth check (TODO: Implement proper auth with Better Auth)
-const isAuthenticated = () => {
-  // For now, just return true
-  // Later: Check Better Auth session
-  return true;
-};
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated()) {

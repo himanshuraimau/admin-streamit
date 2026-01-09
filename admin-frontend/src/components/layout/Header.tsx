@@ -1,15 +1,27 @@
 import { Bell, LogOut } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { clearAuth, getUser } from "@/lib/auth";
 
 export function Header() {
+  const user = getUser();
+
   const handleLogout = () => {
-    // TODO: Implement logout with Better Auth
+    clearAuth();
     window.location.href = "/login";
   };
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-white px-6">
-      <div>
-        <h2 className="text-lg font-semibold">Admin Panel</h2>
+      <div className="flex items-center gap-4">
+        <SidebarTrigger />
+        <div>
+          <h2 className="text-lg font-semibold">Admin Panel</h2>
+          {user && (
+            <p className="text-xs text-gray-500">
+              {user.name} ({user.role})
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-4">

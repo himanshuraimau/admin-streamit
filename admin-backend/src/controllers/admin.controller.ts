@@ -110,7 +110,7 @@ export async function suspendUser(req: Request, res: Response) {
       });
       return;
     }
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
     const input = suspendUserSchema.parse(req.body);
 
     const user = await adminService.suspendUser(id, adminId, input);
@@ -167,7 +167,7 @@ export async function unsuspendUser(req: Request, res: Response) {
       });
       return;
     }
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
     const input = unsuspendUserSchema.parse(req.body);
 
     const user = await adminService.unsuspendUser(id, adminId, input);
@@ -255,7 +255,7 @@ export async function approveCreatorApplication(req: Request, res: Response) {
       });
       return;
     }
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
     const input = approveCreatorSchema.parse(req.body);
 
     const application = await adminService.approveCreatorApplication(id, adminId, input);
@@ -312,7 +312,7 @@ export async function rejectCreatorApplication(req: Request, res: Response) {
       });
       return;
     }
-    const adminId = req.user!.id;
+    const adminId = req.user!.userId;
     const input = rejectCreatorSchema.parse(req.body);
 
     const application = await adminService.rejectCreatorApplication(id, adminId, input);

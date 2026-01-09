@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { adminApi } from "@/lib/api";
+import { setAuthToken, setUser } from "@/lib/auth";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,16 +16,23 @@ export function LoginPage() {
     setError("");
 
     try {
-      // TODO: Implement Better Auth login
-      // For now, simple mock authentication
-      if (email && password) {
+      const response = await adminApi.login(email, password);
+      
+      if (response.data.success) {
+        const { token, user } = response.data.data;
+        
+        // Save token and user data
+        setAuthToken(token);
+        setUser(user);
+        
         // Redirect to dashboard
         navigate("/");
       } else {
-        setError("Invalid credentials");
+        setError(response.data.message || "Login failed");
       }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || "Login failed";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

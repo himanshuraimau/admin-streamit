@@ -1,6 +1,87 @@
 import { prisma } from "../lib/db.js";
 
 class AnalyticsService {
+  // Helper: Get daily revenue
+  private async getDailyRevenue(startDate?: Date, endDate?: Date) {
+    const defaultStart = new Date();
+    defaultStart.setDate(defaultStart.getDate() - 30);
+    
+    const start = startDate || defaultStart;
+    const end = endDate || new Date();
+    
+    const result: any[] = await prisma.$queryRaw`
+      SELECT 
+        DATE("createdAt") as date,
+        COUNT(*)::int as transactions,
+        SUM(amount)::int as revenue
+      FROM "coin_purchase"
+      WHERE status = 'COMPLETED'
+        AND "createdAt" >= ${start}
+        AND "createdAt" <= ${end}
+      GROUP BY DATE("createdAt")
+      ORDER BY date ASC
+      LIMIT 90
+    `;
+    
+    return result.map(r => ({
+      date: r.date.toISOString().split('T')[0],
+      transactions: Number(r.transactions),
+      revenue: Number(r.revenue),
+    }));
+  }
+  
+  // Helper: Get daily signups
+  private async getDailySignups(startDate?: Date, endDate?: Date) {
+    const defaultStart = new Date();
+    defaultStart.setDate(defaultStart.getDate() - 30);
+    
+    const start = startDate || defaultStart;
+    const end = endDate || new Date();
+    
+    const result: any[] = await prisma.$queryRaw`
+      SELECT 
+        DATE("createdAt") as date,
+        COUNT(*)::int as signups
+      FROM "user"
+      WHERE "createdAt" >= ${start}
+        AND "createdAt" <= ${end}
+      GROUP BY DATE("createdAt")
+      ORDER BY date ASC
+      LIMIT 90
+    `;
+    
+    return result.map(r => ({
+      date: r.date.toISOString().split('T')[0],
+      signups: Number(r.signups),
+    }));
+  }
+  
+  // Helper: Get daily posts
+  private async getDailyPosts(startDate?: Date, endDate?: Date) {
+    const defaultStart = new Date();
+    defaultStart.setDate(defaultStart.getDate() - 30);
+    
+    const start = startDate || defaultStart;
+    const end = endDate || new Date();
+    
+    const result: any[] = await prisma.$queryRaw`
+      SELECT 
+        DATE("createdAt") as date,
+        COUNT(*)::int as posts
+      FROM "post"
+      WHERE "createdAt" >= ${start}
+        AND "createdAt" <= ${end}
+      GROUP BY DATE("createdAt")
+      ORDER BY date ASC
+      LIMIT 90
+    `;
+    
+    return result.map(r => ({
+      date: r.date.toISOString().split('T')[0],
+      posts: Number(r.posts),
+    }));
+  }
+
   // Get revenue analytics
   async getRevenueAnalytics(params?: { startDate?: Date; endDate?: Date; groupBy?: string }) {
     const { startDate, endDate, groupBy = "day" } = params || {};
@@ -26,19 +107,7 @@ class AnalyticsService {
         _count: true,
       }),
       // Get daily revenue for charts
-      prisma.$queryRaw`
-        SELECT 
-          DATE(created_at) as date,
-          COUNT(*) as transactions,
-          SUM(amount) as revenue
-        FROM coin_purchase
-        WHERE status = 'COMPLETED'
-        ${startDate ? prisma.$queryRawUnsafe(`AND created_at >= $1`, startDate) : prisma.$queryRawUnsafe(``)}
-        ${endDate ? prisma.$queryRawUnsafe(`AND created_at <= $1`, endDate) : prisma.$queryRawUnsafe(``)}
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
-      `,
+      this.getDailyRevenue(startDate, endDate),
     ]);
 
     // Get package details for revenue breakdown
@@ -54,10 +123,17 @@ class AnalyticsService {
     }));
 
     return {
-      totalRevenue: totalRevenue._sum.amount || 0,
-      totalTransactions,
-      revenueBreakdown,
-      dailyRevenue,
+      success: true,
+      data: {
+        totalRevenue: totalRevenue._sum.amount || 0,
+        totalTransactions,
+        revenueBreakdown,
+        dailyRevenue,
+        averageTransaction: totalTransactions > 0 
+          ? (totalRevenue._sum.amount || 0) / totalTransactions 
+          : 0,
+        totalPayments: totalTransactions,
+      },
     };
   }
 
@@ -80,30 +156,25 @@ class AnalyticsService {
         _count: true,
       }),
       // Get daily signups for charts
-      prisma.$queryRaw`
-        SELECT 
-          DATE(created_at) as date,
-          COUNT(*) as signups
-        FROM "user"
-        ${startDate ? prisma.$queryRawUnsafe(`WHERE created_at >= $1`, startDate) : prisma.$queryRawUnsafe(``)}
-        ${endDate ? prisma.$queryRawUnsafe(`${startDate ? 'AND' : 'WHERE'} created_at <= $1`, endDate) : prisma.$queryRawUnsafe(``)}
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
-      `,
+      this.getDailySignups(startDate, endDate),
       prisma.user.count({
         where: { isSuspended: true },
       }),
     ]);
 
     return {
-      totalUsers,
-      usersByRole: usersByRole.map((u) => ({
-        role: u.role,
-        count: u._count,
-      })),
-      dailySignups,
-      suspendedUsers,
+      success: true,
+      data: {
+        totalUsers,
+        usersByRole: usersByRole.map((u) => ({
+          role: u.role,
+          count: u._count,
+        })),
+        dailySignups,
+        suspendedUsers,
+        newUsers: dailySignups.reduce((sum: number, day: any) => sum + (day.signups || 0), 0),
+        activeUsers: totalUsers - suspendedUsers,
+      },
     };
   }
 
@@ -143,30 +214,25 @@ class AnalyticsService {
         where: { ...where, isFlagged: true },
       }),
       // Get daily post creation for charts
-      prisma.$queryRaw`
-        SELECT 
-          DATE(created_at) as date,
-          COUNT(*) as posts
-        FROM post
-        ${startDate ? prisma.$queryRawUnsafe(`WHERE created_at >= $1`, startDate) : prisma.$queryRawUnsafe(``)}
-        ${endDate ? prisma.$queryRawUnsafe(`${startDate ? 'AND' : 'WHERE'} created_at <= $1`, endDate) : prisma.$queryRawUnsafe(``)}
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
-      `,
+      this.getDailyPosts(startDate, endDate),
     ]);
 
     return {
-      totalPosts,
-      totalComments,
-      totalLikes,
-      postsByType: postsByType.map((p) => ({
-        type: p.type,
-        count: p._count,
-      })),
-      hiddenPosts,
-      flaggedPosts,
-      dailyPosts,
+      success: true,
+      data: {
+        totalPosts,
+        totalComments,
+        totalLikes,
+        postsByType: postsByType.map((p) => ({
+          type: p.type,
+          count: p._count,
+        })),
+        hiddenPosts,
+        flaggedPosts,
+        dailyPosts,
+        totalStreams: 0, // TODO: Add stream count
+        liveStreams: 0, // TODO: Add live stream count
+      },
     };
   }
 
@@ -238,11 +304,30 @@ class AnalyticsService {
       coinsEarned: r._sum.coinAmount || 0,
     }));
 
+    const topGifts = giftBreakdown
+      .sort((a, b) => b.totalCoins - a.totalCoins)
+      .slice(0, 10)
+      .map((g) => ({
+        giftId: g.gift?.id || '',
+        giftName: g.gift?.name || 'Unknown',
+        count: g.count,
+        totalRevenue: g.totalCoins,
+      }));
+
     return {
-      totalGiftsSent,
-      totalCoinsSpent: totalCoinsSpent._sum.coinAmount || 0,
-      giftBreakdown,
-      topReceivers: topReceiversWithDetails,
+      success: true,
+      data: {
+        totalGiftsSent,
+        totalGiftRevenue: totalCoinsSpent._sum.coinAmount || 0,
+        uniqueSenders: await prisma.giftTransaction.findMany({
+          where,
+          select: { senderId: true },
+          distinct: ['senderId'],
+        }).then(r => r.length),
+        topGifts,
+        giftBreakdown,
+        topReceivers: topReceiversWithDetails,
+      },
     };
   }
 
@@ -252,17 +337,19 @@ class AnalyticsService {
       totalUsers,
       activeCreators,
       totalRevenue,
+      totalPosts,
       pendingReports,
       recentActivity,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({
-        where: { role: { in: ["CREATOR", "ADMIN", "SUPER_ADMIN"] } },
+        where: { role: "CREATOR" },
       }),
       prisma.coinPurchase.aggregate({
         where: { status: "COMPLETED" },
         _sum: { amount: true },
       }),
+      prisma.post.count(),
       prisma.report.count({
         where: { status: "PENDING" },
       }),
@@ -282,11 +369,15 @@ class AnalyticsService {
     ]);
 
     return {
-      totalUsers,
-      activeCreators,
-      totalRevenue: totalRevenue._sum.amount || 0,
-      pendingReports,
-      recentActivity,
+      success: true,
+      data: {
+        totalUsers,
+        activeCreators,
+        totalRevenue: (totalRevenue._sum.amount || 0) / 100, // Convert from cents to dollars
+        totalPosts,
+        pendingReports,
+        recentActivity,
+      },
     };
   }
 }
