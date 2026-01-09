@@ -8,7 +8,7 @@ Quick checklist for deploying to AWS EC2.
 - [ ] Neon database created
 - [ ] Database connection string saved
 - [ ] AWS account ready
-- [ ] Domain purchased (`vidrelay.site`)
+- [ ] Domain purchased (`vidreplay.site`)
 - [ ] SSH key pair generated
 
 ## 🖥️ AWS Setup
@@ -17,8 +17,8 @@ Quick checklist for deploying to AWS EC2.
 - [ ] Security group configured (ports 22, 80, 443)
 - [ ] Elastic IP allocated and associated
 - [ ] DNS A records added:
-  - [ ] `app.vidrelay.site` → EC2 IP
-  - [ ] `api.vidrelay.site` → EC2 IP
+  - [ ] `app.vidreplay.site` → EC2 IP
+  - [ ] `api.vidreplay.site` → EC2 IP
 - [ ] DNS propagation verified
 
 ## 🔧 Server Setup
@@ -45,8 +45,8 @@ Quick checklist for deploying to AWS EC2.
 
 ## 🌐 Nginx Configuration
 
-- [ ] Backend config created (`api.vidrelay.site`)
-- [ ] Frontend config created (`app.vidrelay.site`)
+- [ ] Backend config created (`api.vidreplay.site`)
+- [ ] Frontend config created (`app.vidreplay.site`)
 - [ ] Sites enabled
 - [ ] Default site removed
 - [ ] Nginx config tested
@@ -62,8 +62,8 @@ Quick checklist for deploying to AWS EC2.
 
 ## ✅ Verification
 
-- [ ] Frontend accessible: https://app.vidrelay.site
-- [ ] Backend accessible: https://api.vidrelay.site/health
+- [ ] Frontend accessible: https://app.vidreplay.site
+- [ ] Backend accessible: https://api.vidreplay.site/health
 - [ ] Admin login working
 - [ ] Default password changed
 - [ ] All features tested

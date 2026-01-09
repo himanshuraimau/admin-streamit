@@ -99,9 +99,9 @@ VITE_API_URL=http://localhost:4000
 DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/streamit?sslmode=require
 JWT_SECRET=<generate-with-openssl>
 NODE_ENV=production
-ALLOWED_ORIGINS=https://app.vidrelay.site
-ADMIN_FRONTEND_URL=https://app.vidrelay.site
-VITE_API_URL=https://api.vidrelay.site
+ALLOWED_ORIGINS=https://app.vidreplay.site
+ADMIN_FRONTEND_URL=https://app.vidreplay.site
+VITE_API_URL=https://api.vidreplay.site
 ```
 
 ### 3. Deploy
@@ -125,10 +125,10 @@ docker-compose exec backend bun run prisma/seed.ts
 For production with domains, use Nginx as reverse proxy:
 
 ```nginx
-# Frontend (app.vidrelay.site)
+# Frontend (app.vidreplay.site)
 server {
     listen 80;
-    server_name app.vidrelay.site;
+    server_name app.vidreplay.site;
     
     location / {
         proxy_pass http://localhost:80;
@@ -137,10 +137,10 @@ server {
     }
 }
 
-# Backend (api.vidrelay.site)
+# Backend (api.vidreplay.site)
 server {
     listen 80;
-    server_name api.vidrelay.site;
+    server_name api.vidreplay.site;
     
     location / {
         proxy_pass http://localhost:4000;
@@ -152,7 +152,7 @@ server {
 
 Then setup SSL with Certbot:
 ```bash
-sudo certbot --nginx -d app.vidrelay.site -d api.vidrelay.site
+sudo certbot --nginx -d app.vidreplay.site -d api.vidreplay.site
 ```
 
 ## Docker Commands

@@ -5,7 +5,7 @@ Complete API documentation for StreamIt Admin Backend.
 ## Base URL
 
 - **Development**: `http://localhost:4000`
-- **Production**: `https://api.vidrelay.site`
+- **Production**: `https://api.vidreplay.site`
 
 ## Authentication
 

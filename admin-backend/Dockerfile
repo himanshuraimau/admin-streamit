@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies stage
 FROM base AS install
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
 # Build stage

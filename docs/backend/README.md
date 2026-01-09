@@ -150,7 +150,7 @@ DATABASE_URL="postgresql://user:pass@localhost:5432/streamit"
 JWT_SECRET="your-secret-key"
 PORT=4000
 NODE_ENV=production
-ALLOWED_ORIGINS="https://app.vidrelay.site"
+ALLOWED_ORIGINS="https://app.vidreplay.site"
 ```
 
 ## Running

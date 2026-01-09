@@ -266,8 +266,8 @@ See [Documentation](docs/README.md) for detailed guides.
 Deploy to AWS EC2 with Neon PostgreSQL:
 
 **Setup:**
-- Frontend: `app.vidrelay.site`
-- Backend: `api.vidrelay.site`
+- Frontend: `app.vidreplay.site`
+- Backend: `api.vidreplay.site`
 - Database: Neon PostgreSQL (cloud)
 
 **Quick Steps:**

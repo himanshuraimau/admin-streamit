@@ -3,8 +3,8 @@
 Complete guide for deploying StreamIt Admin Dashboard on AWS EC2 with Neon PostgreSQL.
 
 **Deployment Setup:**
-- Frontend: `app.vidrelay.site`
-- Backend: `api.vidrelay.site`
+- Frontend: `app.vidreplay.site`
+- Backend: `api.vidreplay.site`
 - Database: Neon PostgreSQL (cloud)
 - Server: Single AWS EC2 instance
 
@@ -13,7 +13,7 @@ Complete guide for deploying StreamIt Admin Dashboard on AWS EC2 with Neon Postg
 ## 📋 Prerequisites
 
 - AWS Account
-- Domain: `vidrelay.site` (with DNS access)
+- Domain: `vidreplay.site` (with DNS access)
 - Neon account (free tier available)
 - SSH key pair for EC2
 
@@ -94,7 +94,7 @@ Create security group: `streamit-admin-sg`
 
 ### 1. Add DNS Records
 
-In your domain registrar (where you bought `vidrelay.site`), add these A records:
+In your domain registrar (where you bought `vidreplay.site`), add these A records:
 
 | Type | Name | Value | TTL |
 |------|------|-------|-----|
@@ -119,8 +119,8 @@ TTL: 300
 Wait 5-10 minutes, then verify:
 
 ```bash
-dig app.vidrelay.site +short
-dig api.vidrelay.site +short
+dig app.vidreplay.site +short
+dig api.vidreplay.site +short
 # Both should return your EC2 IP
 ```
 
@@ -244,11 +244,11 @@ BACKEND_PORT=4000
 FRONTEND_PORT=3000
 
 # CORS
-ALLOWED_ORIGINS=https://app.vidrelay.site
-ADMIN_FRONTEND_URL=https://app.vidrelay.site
+ALLOWED_ORIGINS=https://app.vidreplay.site
+ADMIN_FRONTEND_URL=https://app.vidreplay.site
 
 # Frontend API URL
-VITE_API_URL=https://api.vidrelay.site
+VITE_API_URL=https://api.vidreplay.site
 ```
 
 **Generate JWT Secret:**
@@ -299,14 +299,14 @@ curl http://localhost:3000
 ### 1. Create Backend Config
 
 ```bash
-sudo nano /etc/nginx/sites-available/api.vidrelay.site
+sudo nano /etc/nginx/sites-available/api.vidreplay.site
 ```
 
 **Add:**
 ```nginx
 server {
     listen 80;
-    server_name api.vidrelay.site;
+    server_name api.vidreplay.site;
 
     location / {
         proxy_pass http://localhost:4000;
@@ -330,14 +330,14 @@ server {
 ### 2. Create Frontend Config
 
 ```bash
-sudo nano /etc/nginx/sites-available/app.vidrelay.site
+sudo nano /etc/nginx/sites-available/app.vidreplay.site
 ```
 
 **Add:**
 ```nginx
 server {
     listen 80;
-    server_name app.vidrelay.site;
+    server_name app.vidreplay.site;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -357,8 +357,8 @@ server {
 
 ```bash
 # Create symbolic links
-sudo ln -s /etc/nginx/sites-available/api.vidrelay.site /etc/nginx/sites-enabled/
-sudo ln -s /etc/nginx/sites-available/app.vidrelay.site /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/api.vidreplay.site /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/app.vidreplay.site /etc/nginx/sites-enabled/
 
 # Remove default site
 sudo rm /etc/nginx/sites-enabled/default
@@ -374,15 +374,15 @@ sudo systemctl reload nginx
 
 ```bash
 # Test backend
-curl http://api.vidrelay.site/health
+curl http://api.vidreplay.site/health
 
 # Test frontend
-curl http://app.vidrelay.site
+curl http://app.vidreplay.site
 ```
 
 Visit in browser:
-- http://app.vidrelay.site
-- http://api.vidrelay.site/health
+- http://app.vidreplay.site
+- http://api.vidreplay.site/health
 
 ---
 
@@ -392,7 +392,7 @@ Visit in browser:
 
 ```bash
 # Get certificates for both domains
-sudo certbot --nginx -d app.vidrelay.site -d api.vidrelay.site
+sudo certbot --nginx -d app.vidreplay.site -d api.vidreplay.site
 ```
 
 **Follow prompts:**
@@ -408,13 +408,13 @@ sudo certbot --nginx -d app.vidrelay.site -d api.vidrelay.site
 sudo certbot certificates
 
 # Test HTTPS
-curl https://api.vidrelay.site/health
-curl https://app.vidrelay.site
+curl https://api.vidreplay.site/health
+curl https://app.vidreplay.site
 ```
 
 Visit in browser:
-- https://app.vidrelay.site
-- https://api.vidrelay.site/health
+- https://app.vidreplay.site
+- https://api.vidreplay.site/health
 
 ### 3. Auto-Renewal
 
@@ -436,7 +436,7 @@ Certificates auto-renew 30 days before expiry.
 
 ### 1. Access Application
 
-Visit: **https://app.vidrelay.site**
+Visit: **https://app.vidreplay.site**
 
 **Login with:**
 - Email: `admin@streamit.com`
@@ -447,7 +447,7 @@ Visit: **https://app.vidrelay.site**
 ### 2. Test Backend API
 
 ```bash
-curl https://api.vidrelay.site/health
+curl https://api.vidreplay.site/health
 ```
 
 Should return:
@@ -608,7 +608,7 @@ docker-compose exec backend bunx prisma db pull
 # Check VITE_API_URL in .env
 cat .env | grep VITE_API_URL
 
-# Should be: https://api.vidrelay.site
+# Should be: https://api.vidreplay.site
 
 # Rebuild frontend
 docker-compose up -d --build frontend
@@ -634,8 +634,8 @@ sudo systemctl reload nginx
 
 ```bash
 # Check DNS
-dig app.vidrelay.site +short
-dig api.vidrelay.site +short
+dig app.vidreplay.site +short
+dig api.vidreplay.site +short
 
 # Should return your EC2 IP
 
@@ -749,7 +749,7 @@ For issues:
 1. Check logs: `docker-compose logs -f`
 2. Verify environment: `cat .env`
 3. Test database: `docker-compose exec backend bunx prisma db pull`
-4. Check DNS: `dig app.vidrelay.site +short`
+4. Check DNS: `dig app.vidreplay.site +short`
 5. Review [Documentation](docs/README.md)
 
 ---
@@ -757,5 +757,5 @@ For issues:
 **Deployment Complete! 🎉**
 
 Your admin dashboard is now live at:
-- **Frontend**: https://app.vidrelay.site
-- **Backend**: https://api.vidrelay.site
+- **Frontend**: https://app.vidreplay.site
+- **Backend**: https://api.vidreplay.site

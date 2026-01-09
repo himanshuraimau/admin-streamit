@@ -78,7 +78,7 @@ bun dev
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                     Frontend (React)                     │
-│                  app.vidrelay.site                       │
+│                  app.vidreplay.site                       │
 │                                                           │
 │  - React 19 + TypeScript                                │
 │  - TailwindCSS + shadcn/ui                              │
@@ -90,7 +90,7 @@ bun dev
                  │
 ┌────────────────▼────────────────────────────────────────┐
 │                  Backend (Bun + Express)                 │
-│                  api.vidrelay.site                       │
+│                  api.vidreplay.site                       │
 │                                                           │
 │  - Bun runtime                                           │
 │  - Express.js                                            │
