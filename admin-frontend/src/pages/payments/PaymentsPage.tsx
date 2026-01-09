@@ -111,7 +111,7 @@ export default function PaymentsPage() {
   ];
 
   const table = useReactTable({
-    data: paymentsData?.data.payments || [],
+    data: paymentsData?.data.data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });

@@ -152,7 +152,7 @@ export default function DiscountCodesPage() {
   ];
 
   const table = useReactTable({
-    data: discountsData?.data.discounts || [],
+    data: discountsData?.data.data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -380,8 +380,8 @@ export default function DiscountCodesPage() {
                 {createMutation.isPending || updateMutation.isPending
                   ? "Saving..."
                   : editModal.discount
-                  ? "Update"
-                  : "Create"}
+                    ? "Update"
+                    : "Create"}
               </button>
             </div>
           </div>
