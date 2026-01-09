@@ -142,7 +142,7 @@ class DiscountService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "CREATE_DISCOUNT_CODE" as any,
+          action: "DISCOUNT_CODE_CREATED",
           adminId: adminId,
           targetType: "DISCOUNT_CODE",
           targetId: created.id,
@@ -190,7 +190,7 @@ class DiscountService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "UPDATE_DISCOUNT_CODE" as any,
+          action: "DISCOUNT_CODE_UPDATED",
           adminId: adminId,
           targetType: "DISCOUNT_CODE",
           targetId: id,
@@ -223,7 +223,7 @@ class DiscountService {
       // Log admin action
       await tx.adminActivityLog.create({
         data: {
-          action: "DELETE_DISCOUNT_CODE" as any,
+          action: "DISCOUNT_CODE_DELETED",
           adminId: adminId,
           targetType: "DISCOUNT_CODE",
           targetId: id,

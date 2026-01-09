@@ -1,5 +1,8 @@
 {
-  "name": "admin-backend",
+  "name": "streamit-admin-backend",
+  "version": "1.0.0",
+  "description": "Backend API for StreamIt admin dashboard - Handles authentication, user management, content moderation, and analytics",
+  "author": "StreamIt Team",
   "module": "index.ts",
   "type": "module",
   "private": true,

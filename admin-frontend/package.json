@@ -1,7 +1,9 @@
 {
-  "name": "admin-frontend",
+  "name": "streamit-admin-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Admin dashboard for StreamIt platform - Manage users, content, payments, and analytics",
+  "author": "StreamIt Team",
   "type": "module",
   "scripts": {
     "dev": "vite",

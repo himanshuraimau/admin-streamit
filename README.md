@@ -1,128 +1,82 @@
-# StreamIt Admin Panel
+# StreamIt Admin Dashboard
 
-A comprehensive admin dashboard for managing the StreamIt live streaming platform. Built with React, TypeScript, and Express.js.
+A comprehensive admin dashboard for the StreamIt platform, providing complete control over users, content, payments, analytics, and platform operations.
 
 ## 🚀 Features
 
-### User Management
-- View and search all users
-- Filter by role and suspension status
-- Suspend/unsuspend user accounts with reasons
-- View detailed user profiles and activity
+- **User Management**: View, suspend, and manage user accounts
+- **Creator Applications**: Review and approve/reject creator applications
+- **Payment Management**: Monitor transactions, process refunds, and view payment analytics
+- **Virtual Gifts**: Manage gift catalog and track gift transactions
+- **Discount Codes**: Create and manage promotional discount codes
+- **Content Moderation**: Review and moderate posts, comments, and streams
+- **Reports Management**: Handle user reports and take appropriate actions
+- **Activity Logs**: Track all admin actions with detailed audit trail
+- **Analytics Dashboard**: Comprehensive analytics for revenue, users, content, and gifts
 
-### Creator Management
-- Review and approve creator applications
-- Reject applications with feedback
-- Monitor creator activity and content
-
-### Payment Management
-- View all payment transactions
-- Filter by status and search
-- Process refunds with tracking
-- View payment statistics and analytics
-
-### Virtual Gifts
-- Create and manage virtual gifts
-- Set pricing and upload gift assets
-- View gift transaction history
-- Track gift revenue and popularity
-
-### Discount Codes
-- Create promotional discount codes
-- Set percentage or fixed amount discounts
-- Configure usage limits and expiration
-- Track redemption statistics
-
-### Content Moderation
-- Moderate posts, comments, and streams
-- Hide or delete inappropriate content
-- End live streams for policy violations
-- Track moderation history
-
-### Reports Management
-- Review user reports
-- Resolve or dismiss reports with notes
-- Track report status workflow
-- View report statistics
-
-### Activity Logs
-- Comprehensive admin action logging
-- Filter by action type and date range
-- Search by admin or target
-- View detailed activity timeline
-
-### Analytics Dashboard
-- Platform overview metrics
-- Revenue analytics with charts
-- User growth and demographics
-- Content creation trends
-- Gift usage analytics
-
-## 📦 Project Structure
+## 📁 Project Structure
 
 ```
 admin-streamit/
-├── admin-backend/          # Express.js backend
+├── admin-frontend/          # React + Vite frontend
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── lib/            # Utilities and API client
+│   │   └── types/          # TypeScript type definitions
+│   └── package.json
+│
+├── admin-backend/           # Bun + Express backend
 │   ├── src/
 │   │   ├── controllers/    # Request handlers
 │   │   ├── services/       # Business logic
-│   │   ├── middleware/     # Auth & validation
 │   │   ├── routes/         # API routes
-│   │   ├── types/          # TypeScript types
-│   │   └── index.ts        # Entry point
-│   ├── prisma/
-│   │   └── schema.prisma   # Database schema
+│   │   ├── middleware/     # Express middleware
+│   │   └── lib/            # Utilities
+│   ├── prisma/             # Database schema and migrations
 │   └── package.json
-├── admin-frontend/         # React frontend
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── lib/            # Utilities & API client
-│   │   ├── types/          # TypeScript types
-│   │   └── App.tsx         # App entry point
-│   └── package.json
+│
 └── README.md
 ```
 
 ## 🛠️ Tech Stack
 
-### Backend
-- **Runtime:** Bun
-- **Framework:** Express.js 5
-- **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** Better Auth
-- **Validation:** Zod
-- **Language:** TypeScript
-
 ### Frontend
-- **Framework:** React 19
-- **Build Tool:** Vite
-- **Routing:** React Router 7
-- **State Management:** TanStack Query
-- **Tables:** TanStack Table
-- **Forms:** React Hook Form
-- **Styling:** Tailwind CSS 4
-- **Charts:** Recharts
-- **Icons:** Lucide React
-- **Notifications:** Sonner
-- **Language:** TypeScript
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **TailwindCSS 4** - Styling
+- **shadcn/ui** - UI components
+- **TanStack Query** - Data fetching and caching
+- **React Router** - Routing
+- **Recharts** - Data visualization
+- **Axios** - HTTP client
+
+### Backend
+- **Bun** - JavaScript runtime
+- **Express** - Web framework
+- **TypeScript** - Type safety
+- **Prisma** - ORM
+- **PostgreSQL** - Database
+- **JWT** - Authentication
+- **Zod** - Validation
 
 ## 📋 Prerequisites
 
-- Bun >= 1.0.0
-- PostgreSQL >= 14
-- Node.js >= 20 (for frontend tools)
+- **Node.js** 18+ or **Bun** 1.0+
+- **PostgreSQL** 14+
+- **Git**
 
 ## 🚀 Getting Started
 
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd admin-streamit
 ```
 
-### 2. Backend Setup
+### 2. Setup Backend
 
 ```bash
 cd admin-backend
@@ -130,26 +84,30 @@ cd admin-backend
 # Install dependencies
 bun install
 
-# Set up environment variables
-cp .env.development .env
+# Configure environment variables
+cp .env.example .env
 # Edit .env with your database credentials
 
-# Generate Prisma Client
-bunx prisma generate
+# Generate Prisma client
+bun db:generate
 
 # Run migrations
-bunx prisma migrate dev
+bun db:migrate
 
-# Seed initial admin user (optional)
-bunx prisma db seed
+# Seed the database (creates admin user)
+bun db:seed
 
 # Start development server
-bun run dev
+bun dev
 ```
 
-The backend will run on `http://localhost:4000`.
+The backend will run on `http://localhost:4000`
 
-### 3. Frontend Setup
+**Default Admin Credentials:**
+- Email: `admin@streamit.com`
+- Password: `Admin@123456`
+
+### 3. Setup Frontend
 
 ```bash
 cd admin-frontend
@@ -158,187 +116,135 @@ cd admin-frontend
 bun install
 
 # Start development server
-bun run dev
+bun dev
 ```
 
-The frontend will run on `http://localhost:3001`.
+The frontend will run on `http://localhost:3001`
 
-### 4. Access the Application
-
-1. Open `http://localhost:3001` in your browser
-2. Log in with admin credentials
-3. Start managing your platform!
-
-## 🔐 Authentication
-
-The application uses Better Auth for authentication. Admin users must have the role `ADMIN` or `SUPER_ADMIN` to access the admin panel.
-
-### Creating an Admin User
-
-You can create an admin user directly in the database:
-
-```sql
-UPDATE "user" 
-SET role = 'SUPER_ADMIN' 
-WHERE email = 'your-email@example.com';
-```
-
-## 📝 Environment Variables
+## 🔐 Environment Variables
 
 ### Backend (.env)
 
 ```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/voltstream"
+
+# JWT
+JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
+
+# Server
 PORT=4000
 NODE_ENV=development
-DATABASE_URL=postgresql://user:password@localhost:5432/database
-BETTER_AUTH_SECRET=your-secret-key
-BETTER_AUTH_URL=http://localhost:4000
 ```
 
 ### Frontend (.env)
 
 ```env
 VITE_API_URL=http://localhost:4000
-VITE_APP_NAME="StreamIt Admin"
 ```
 
-## 🧪 Development
+## 📝 Available Scripts
 
-### Backend Commands
+### Backend
 
-```bash
-# Start development server
-bun run dev
+- `bun dev` - Start development server with hot reload
+- `bun start` - Start production server
+- `bun db:generate` - Generate Prisma client
+- `bun db:migrate` - Run database migrations
+- `bun db:push` - Push schema changes to database
+- `bun db:studio` - Open Prisma Studio
+- `bun db:seed` - Seed database with initial data
 
-# Build for production
-bun run build
+### Frontend
 
-# Run production server
-bun run start
+- `bun dev` - Start development server
+- `bun build` - Build for production
+- `bun preview` - Preview production build
+- `bun lint` - Run ESLint
 
-# Run Prisma Studio
-bunx prisma studio
+## 🎨 Features Overview
 
-# Generate Prisma Client
-bunx prisma generate
+### Dashboard
+- Platform overview with key metrics
+- Recent activity feed
+- Quick access to pending tasks
 
-# Create migration
-bunx prisma migrate dev --name migration_name
-```
+### User Management
+- Search and filter users
+- View detailed user profiles
+- Suspend/unsuspend users
+- Track user activity
 
-### Frontend Commands
+### Creator Applications
+- Review pending applications
+- Approve or reject with notes
+- View applicant details and documents
 
-```bash
-# Start development server
-bun run dev
+### Payments
+- View all transactions
+- Filter by status and date
+- Process refunds
+- Payment statistics
 
-# Build for production
-bun run build
+### Virtual Gifts
+- Manage gift catalog
+- Track gift transactions
+- View gift analytics
 
-# Preview production build
-bun run preview
+### Discount Codes
+- Create promotional codes
+- Set expiration and usage limits
+- Track redemptions
 
-# Lint code
-bun run lint
-```
+### Content Moderation
+- Review posts, comments, and streams
+- Hide/unhide content
+- Delete inappropriate content
+- End live streams
 
-## 📚 API Documentation
+### Reports
+- Review user reports
+- Resolve or dismiss reports
+- Track report statistics
 
-Detailed API documentation is available in [API.md](./admin-backend/API.md).
+### Analytics
+- Revenue analytics with charts
+- User growth metrics
+- Content statistics
+- Gift analytics
 
-Base URL: `http://localhost:4000/api/admin`
+## 🔒 Security
 
-All endpoints require admin authentication.
-
-## 🎨 UI Components
-
-The frontend uses a custom component library built with:
-- Tailwind CSS for styling
-- Lucide React for icons
-- TanStack Table for data tables
-- Recharts for analytics charts
-- Sonner for toast notifications
-
-## 🔒 Security Features
-
+- JWT-based authentication
 - Role-based access control (RBAC)
-- Session-based authentication
-- CORS protection
-- Input validation with Zod
+- Password hashing with bcrypt
 - SQL injection protection via Prisma
 - XSS protection
-- Rate limiting (recommended for production)
+- CORS configuration
+- Input validation with Zod
 
-## 📊 Database Schema
-
-The application uses Prisma with PostgreSQL. Key models include:
-
-- **User** - User accounts and profiles
-- **CreatorApplication** - Creator verification requests
-- **CoinPurchase** - Payment transactions
-- **Gift** - Virtual gift definitions
-- **GiftTransaction** - Gift purchase history
-- **DiscountCode** - Promotional codes
-- **Post/Comment/Stream** - User-generated content
-- **Report** - User reports
-- **AdminActivityLog** - Admin action audit trail
-
-## 🚀 Deployment
+## 🚢 Deployment
 
 ### Backend Deployment
 
-1. Set production environment variables
-2. Run database migrations
-3. Build the application: `bun run build`
-4. Start the server: `bun run start`
+1. Set environment variables
+2. Run database migrations: `bun db:migrate:deploy`
+3. Build and start: `bun start`
 
 ### Frontend Deployment
 
-1. Update `VITE_API_URL` in `.env.production`
-2. Build the application: `bun run build`
-3. Serve the `dist` folder with a static file server (Nginx, Vercel, Netlify, etc.)
-
-### Recommended Hosting
-
-- **Backend:** Railway, Render, Fly.io, AWS, DigitalOcean
-- **Frontend:** Vercel, Netlify, Cloudflare Pages
-- **Database:** Supabase, Railway, Neon, AWS RDS
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+1. Set production API URL in `.env`
+2. Build: `bun build`
+3. Deploy `dist` folder to your hosting service
 
 ## 📄 License
 
-This project is proprietary software for StreamIt platform.
+This project is proprietary and confidential.
 
-## 🐛 Known Issues
+## 👥 Team
 
-- Some TypeScript type mismatches between frontend and backend need alignment
-- Table pagination could be improved with infinite scroll
-- Real-time updates via WebSocket not yet implemented
-
-## 🔮 Future Enhancements
-
-- [ ] Real-time notifications via WebSocket
-- [ ] Advanced analytics with custom date ranges
-- [ ] Bulk operations for user management
-- [ ] Export data to CSV/Excel
-- [ ] Email notifications for critical actions
-- [ ] Two-factor authentication for admins
-- [ ] API rate limiting
-- [ ] Automated tests (unit & integration)
-- [ ] Docker containerization
-- [ ] CI/CD pipeline setup
+StreamIt Team
 
 ## 📞 Support
 
-For questions or issues, please contact the development team or create an issue in the repository.
-
----
-
-Built with ❤️ for StreamIt Platform
+For support, please contact the development team.

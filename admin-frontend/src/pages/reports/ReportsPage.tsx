@@ -135,33 +135,33 @@ export default function ReportsPage() {
             )}
             {(report.status === "PENDING" ||
               report.status === "UNDER_REVIEW") && (
-              <>
-                <button
-                  onClick={() =>
-                    setActionModal({
-                      type: "resolve",
-                      report,
-                      note: "",
-                    })
-                  }
-                  className="text-green-600 hover:text-green-800 text-sm font-medium"
-                >
-                  Resolve
-                </button>
-                <button
-                  onClick={() =>
-                    setActionModal({
-                      type: "dismiss",
-                      report,
-                      note: "",
-                    })
-                  }
-                  className="text-gray-600 hover:text-gray-800 text-sm font-medium"
-                >
-                  Dismiss
-                </button>
-              </>
-            )}
+                <>
+                  <button
+                    onClick={() =>
+                      setActionModal({
+                        type: "resolve",
+                        report,
+                        note: "",
+                      })
+                    }
+                    className="text-green-600 hover:text-green-800 text-sm font-medium"
+                  >
+                    Resolve
+                  </button>
+                  <button
+                    onClick={() =>
+                      setActionModal({
+                        type: "dismiss",
+                        report,
+                        note: "",
+                      })
+                    }
+                    className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                  >
+                    Dismiss
+                  </button>
+                </>
+              )}
           </div>
         );
       },
@@ -169,7 +169,7 @@ export default function ReportsPage() {
   ];
 
   const table = useReactTable({
-    data: reportsData?.data.reports || [],
+    data: reportsData?.data.data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -362,17 +362,16 @@ export default function ReportsPage() {
                   resolveMutation.isPending ||
                   dismissMutation.isPending
                 }
-                className={`px-4 py-2 text-white rounded-lg disabled:opacity-50 ${
-                  actionModal.type === "resolve"
+                className={`px-4 py-2 text-white rounded-lg disabled:opacity-50 ${actionModal.type === "resolve"
                     ? "bg-green-600"
                     : "bg-gray-600"
-                }`}
+                  }`}
               >
                 {resolveMutation.isPending || dismissMutation.isPending
                   ? "Processing..."
                   : actionModal.type === "resolve"
-                  ? "Resolve"
-                  : "Dismiss"}
+                    ? "Resolve"
+                    : "Dismiss"}
               </button>
             </div>
           </div>

@@ -73,15 +73,33 @@ export default function DiscountCodesPage() {
     }),
     columnHelper.accessor("type", {
       header: "Type",
-      cell: (info) => <span className="text-sm">{info.getValue()}</span>,
+      cell: (info) => <span className="text-sm">{(info.row.original as any).discountType || info.getValue()}</span>,
     }),
     columnHelper.accessor("value", {
       header: "Value",
       cell: (info) => {
         const row = info.row.original;
+        // Check for discountValue which is the actual field name from API/DB
+        // accessing row.value might be undefined if the accessor didn't find it map correctly
+        // but since accessor is "value", if your data has "discountValue" instead, it will be undefined.
+        // The API returns "discountValue" but the frontend type expects "value".
+        // We need to check if the frontend type definition matches the API response or if we need to map it.
+        // Looking at the DiscountCode interface in types/index.ts, it has "value".
+        // Looking at backend service, it creates with "discountValue". 
+        // We should fix the accessor to match what's essentially coming from API if we can't change backend easily, 
+        // OR better, handle the mismatch.
+
+        // Actually, looking at the service, it returns the Prisma model which has `discountValue`.
+        // But the frontend type `DiscountCode` has `value`.
+        // So `info.getValue()` is likely undefined because `value` property doesn't exist on the object from API.
+
+        // Let's use row.original which will contain the actual data from API.
+        const val = (row as any).discountValue || row.value;
+        const type = (row as any).discountType || row.type;
+
         return (
           <span className="font-semibold">
-            {row.type === "PERCENTAGE" ? `${info.getValue()}%` : `$${info.getValue()}`}
+            {type === "PERCENTAGE" ? `${val}%` : `$${val}`}
           </span>
         );
       },

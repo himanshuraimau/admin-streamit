@@ -126,11 +126,10 @@ export default function ContentModerationPage() {
       header: "Status",
       cell: (info) => (
         <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            info.getValue()
+          className={`px-2 py-1 rounded text-xs font-medium ${info.getValue()
               ? "bg-red-100 text-red-800"
               : "bg-green-100 text-green-800"
-          }`}
+            }`}
         >
           {info.getValue() ? "Hidden" : "Visible"}
         </span>
@@ -240,11 +239,10 @@ export default function ContentModerationPage() {
       header: "Status",
       cell: (info) => (
         <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            info.getValue()
+          className={`px-2 py-1 rounded text-xs font-medium ${info.getValue()
               ? "bg-red-100 text-red-800"
               : "bg-gray-100 text-gray-800"
-          }`}
+            }`}
         >
           {info.getValue() ? "Live" : "Ended"}
         </span>
@@ -278,19 +276,19 @@ export default function ContentModerationPage() {
   ];
 
   const postsTable = useReactTable({
-    data: postsData?.data.posts || [],
+    data: postsData?.data.data || [],
     columns: postColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   const commentsTable = useReactTable({
-    data: commentsData?.data.comments || [],
+    data: commentsData?.data.data || [],
     columns: commentColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   const streamsTable = useReactTable({
-    data: streamsData?.data.streams || [],
+    data: streamsData?.data.data || [],
     columns: streamColumns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -332,11 +330,10 @@ export default function ContentModerationPage() {
                 setActiveTab("posts");
                 setPage(1);
               }}
-              className={`px-6 py-3 font-medium ${
-                activeTab === "posts"
+              className={`px-6 py-3 font-medium ${activeTab === "posts"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600"
-              }`}
+                }`}
             >
               Posts
             </button>
@@ -345,11 +342,10 @@ export default function ContentModerationPage() {
                 setActiveTab("comments");
                 setPage(1);
               }}
-              className={`px-6 py-3 font-medium ${
-                activeTab === "comments"
+              className={`px-6 py-3 font-medium ${activeTab === "comments"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600"
-              }`}
+                }`}
             >
               Comments
             </button>
@@ -358,11 +354,10 @@ export default function ContentModerationPage() {
                 setActiveTab("streams");
                 setPage(1);
               }}
-              className={`px-6 py-3 font-medium ${
-                activeTab === "streams"
+              className={`px-6 py-3 font-medium ${activeTab === "streams"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600"
-              }`}
+                }`}
             >
               Streams
             </button>
@@ -491,8 +486,8 @@ export default function ContentModerationPage() {
               {actionModal.type === "hide"
                 ? "Toggle Visibility"
                 : actionModal.type === "delete"
-                ? "Delete Content"
-                : "End Stream"}
+                  ? "Delete Content"
+                  : "End Stream"}
             </h2>
             <p className="text-sm text-gray-600 mb-4">
               This action will be logged in the admin activity log.
